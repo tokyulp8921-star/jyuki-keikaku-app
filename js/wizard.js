@@ -304,7 +304,10 @@ const Wizard = (() => {
     plan.header.uchiawaseDate = today;
     plan.header.sagyobi = Holidays.nextBusinessDayAfter(today);
     plan.header.uchiawaseTime = '';
-    phase = 'header'; stepIdx = 0; machineIndex = 0; pendingNextPlanAfterSave = false; pendingFileName = null;
+    // 日付だけ更新して、そのまま保存前の確認画面へ(内容を再入力させない)
+    machineIndex = Math.max(0, plan.machines.length - 1);
+    pendingNextPlanAfterSave = false; pendingFileName = null;
+    phase = 'confirmName';
     forceFreshState = true;
     if (root) renderCurrent();
   }
