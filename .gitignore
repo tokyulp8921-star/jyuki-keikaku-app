@@ -1,0 +1,4 @@
+test_*.pdf
+*.pyc
+__pycache__/
+assets/qr_app_url.png

@@ -1,0 +1,64 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>重機作業計画書 入力アプリ</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a73e8">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+
+<div id="app">
+  <header id="app-header">
+    <h1 id="header-title">重機作業計画書</h1>
+    <div id="header-sub"></div>
+  </header>
+
+  <main id="view-root"></main>
+
+  <nav id="bottom-nav">
+    <button class="nav-btn" data-view="list"><span class="nav-icon">📋</span><span>一覧</span></button>
+    <button class="nav-btn" data-view="wizard"><span class="nav-icon">✏️</span><span>入力</span></button>
+    <button class="nav-btn" data-view="preview"><span class="nav-icon">👁️</span><span>プレビュー</span></button>
+    <button class="nav-btn" data-view="master"><span class="nav-icon">⚙️</span><span>マスタ管理</span></button>
+  </nav>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// デバッグ安定化のため、Service Worker(オフラインキャッシュ)は一旦無効化。
+// 既に登録されている端末では明示的に解除し、常に最新ファイルを読み込むようにする。
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    regs.forEach((r) => r.unregister());
+  }).catch(() => {});
+  if (window.caches) {
+    caches.keys().then((names) => names.forEach((n) => caches.delete(n))).catch(() => {});
+  }
+}
+
+// 自前のJSファイルは、ブラウザの独自キャッシュ判断(ヒューリスティックキャッシュ)で古い内容が
+// 使われ続ける事例が確認されたため、読み込みURLに毎回異なるバージョン番号を付けて確実に最新を取得する。
+// (script要素間で実行順の依存があるため、1本ずつ順番にロードする)
+const APP_SCRIPTS = [
+  'js/coords.js', 'js/storage.js', 'js/idb-store.js', 'js/holidays.js', 'js/master-data.js',
+  'js/plan-state.js', 'js/ui-helpers.js', 'js/signature.js', 'js/dropbox.js', 'js/pdfgen.js',
+  'js/wizard-header.js', 'js/wizard-machine.js', 'js/wizard.js',
+  'js/list.js', 'js/preview.js', 'js/master-admin.js', 'js/app.js',
+];
+const CACHE_BUST = Date.now();
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = `${src}?v=${CACHE_BUST}`;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error(`${src} の読み込みに失敗しました`));
+    document.body.appendChild(s);
+  });
+}
+(async () => {
+  for (const src of APP_SCRIPTS) {
+    await loadScript(src);
+  }
+})();
+</script>
