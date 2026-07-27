@@ -42,11 +42,12 @@ const PlanState = (() => {
   function fileNameFor(plan, existingNames) {
     const ymd = Holidays.toYYMMDD(plan.header.sagyobi);
     const name = plan.header.gyoshamei || '未設定';
-    let base = `${ymd}${name}`;
+    const location = (plan.machines && plan.machines[0] && plan.machines[0].location) || '';
+    const base = `${ymd}${name}${location}`;
     let final = base;
-    let n = 2;
+    let n = 1;
     const set = new Set(existingNames || []);
-    while (set.has(final + '.pdf')) { final = `${base}-${n}`; n++; }
+    while (set.has(final + '.pdf')) { final = `${base}${String(n).padStart(2, '0')}`; n++; }
     return final + '.pdf';
   }
 

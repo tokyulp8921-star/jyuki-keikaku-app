@@ -199,8 +199,8 @@ const Wizard = (() => {
       let fileName;
       if (customBaseName) {
         let final = customBaseName + '.pdf';
-        let n = 2;
-        while (existing.includes(final)) { final = `${customBaseName}-${n}.pdf`; n++; }
+        let n = 1;
+        while (existing.includes(final)) { final = `${customBaseName}${String(n).padStart(2, '0')}.pdf`; n++; }
         fileName = final;
       } else {
         fileName = PlanState.fileNameFor(plan, existing);
