@@ -215,6 +215,7 @@ const Wizard = (() => {
       }
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       await IdbStore.put(fileName, blob); // ページ再読み込み後も開けるようIndexedDBに実体を保存
+      try { await IdbStore.putPlan(fileName, plan); } catch (e) { console.warn('plan保存に失敗', e); } // 「再利用」用の入力データ
       const verify = await IdbStore.get(fileName); // 書き込みが確実に反映されたか読み戻して検証
       const hasLocal = !!verify;
       if (!hasLocal && !dropboxPath) {
@@ -263,10 +264,17 @@ const Wizard = (() => {
     root.appendChild(c);
   }
 
+  let forceFreshState = false; // startNew/startFromPlanの直後は下書き復元をスキップする
+
   async function mount(container) {
     root = container;
     master = await MasterData.load();
     await Holidays.load();
+    if (forceFreshState) {
+      forceFreshState = false;
+      renderCurrent();
+      return;
+    }
     const draft = Storage.loadDraft();
     if (draft && draft.plan) {
       plan = draft.plan; phase = draft.phase; stepIdx = draft.stepIdx; machineIndex = draft.machineIndex;
@@ -281,10 +289,27 @@ const Wizard = (() => {
   function startNew() {
     plan = PlanState.newPlan();
     phase = 'header'; stepIdx = 0; machineIndex = 0; pendingNextPlanAfterSave = false; pendingFileName = null;
+    forceFreshState = true;
+    if (root) renderCurrent();
+  }
+
+  // 一覧の「再利用」ボタンから呼ばれる: 保存済みplanを引き継ぎつつ、
+  // 打合せ日(入力2)は今日、作業日(入力4)は翌平日に自動更新した新しい計画として開始する
+  function startFromPlan(sourcePlan) {
+    plan = JSON.parse(JSON.stringify(sourcePlan));
+    plan.id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    plan.savedFileName = '';
+    plan.createdAt = Date.now();
+    const today = Holidays.fmt(new Date());
+    plan.header.uchiawaseDate = today;
+    plan.header.sagyobi = Holidays.nextBusinessDayAfter(today);
+    plan.header.uchiawaseTime = '';
+    phase = 'header'; stepIdx = 0; machineIndex = 0; pendingNextPlanAfterSave = false; pendingFileName = null;
+    forceFreshState = true;
     if (root) renderCurrent();
   }
 
   function currentPlan() { return plan; }
 
-  return { mount, startNew, currentPlan };
+  return { mount, startNew, startFromPlan, currentPlan };
 })();
