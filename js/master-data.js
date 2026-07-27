@@ -8,7 +8,17 @@ const MasterData = (() => {
     const base = await res.json();
     const local = Storage.getMasterLocal();
     data = local ? local : base;
+    migrateSecondTier();
     return data;
+  }
+
+  // 旧形式(secondTierの単純リスト)からの移行、および未登録業者名分の初期化
+  function migrateSecondTier() {
+    if (!data.secondTierByContractor) data.secondTierByContractor = {};
+    delete data.secondTier;
+    (data.contractors || []).forEach((name) => {
+      if (!data.secondTierByContractor[name]) data.secondTierByContractor[name] = [];
+    });
   }
 
   function get() { return data; }
@@ -53,5 +63,26 @@ const MasterData = (() => {
     save(data);
   }
 
-  return { load, get, save, machinesFor, addToList, removeFromList, addMachine, removeMachine };
+  // 1次業者名から2次業者名一覧を取得
+  function secondTierFor(contractor) {
+    if (!data || !contractor) return [];
+    return data.secondTierByContractor[contractor] || [];
+  }
+
+  function addSecondTier(contractor, name) {
+    if (!data.secondTierByContractor[contractor]) data.secondTierByContractor[contractor] = [];
+    if (!data.secondTierByContractor[contractor].includes(name)) data.secondTierByContractor[contractor].push(name);
+    save(data);
+  }
+
+  function removeSecondTier(contractor, name) {
+    if (!data.secondTierByContractor[contractor]) return;
+    data.secondTierByContractor[contractor] = data.secondTierByContractor[contractor].filter((v) => v !== name);
+    save(data);
+  }
+
+  return {
+    load, get, save, machinesFor, addToList, removeFromList, addMachine, removeMachine,
+    secondTierFor, addSecondTier, removeSecondTier,
+  };
 })();

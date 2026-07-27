@@ -106,10 +106,10 @@ const HeaderSteps = (() => {
     { // 入力10 2次業者名
       id: 'h6', title: '2次業者名',
       render(container, ctx) {
-        const c = card('入力10: 2次業者名');
+        const c = card('入力10: 2次業者名', `入力1で選択した「${ctx.plan.header.gyoshamei}」に登録されている2次業者名から選択します。`);
         selectField(c, {
           label: '2次業者名（プルダウン）', value: ctx.plan.header.gyoshamei2,
-          options: ctx.master.secondTier,
+          options: MasterData.secondTierFor(ctx.plan.header.gyoshamei),
           onChange: (v) => { ctx.plan.header.gyoshamei2 = v; },
         });
         container.appendChild(c);
