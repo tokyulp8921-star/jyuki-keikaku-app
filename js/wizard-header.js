@@ -77,7 +77,7 @@ const HeaderSteps = (() => {
         const selected = ctx.plan.header.tantosha.filter((x) => x);
         chipGroup(c, {
           label: '担当者（複数選択可・最大3名）', value: selected, multi: true,
-          options: ctx.master.staff,
+          options: MasterData.staffNames(),
           onChange: (v) => {
             if (v.length > 3) v.splice(3);
             ctx.plan.header.tantosha = [v[0] || '', v[1] || '', v[2] || ''];

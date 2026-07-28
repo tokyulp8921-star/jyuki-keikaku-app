@@ -6,11 +6,28 @@
     "ｺﾝｸﾘｰﾄｺｰﾘﾝｸﾞ", "三河技研", "日本コンクリート", "タケエイ", "ﾀｹｴｲ・SRK", "搬入業者"
   ],
   "staff": [
-    "山田 常久", "石澤 慎司", "田中 真奈美", "山本 瞳瑠", "城戸 いちご",
-    "藤田 孝", "大久保 響", "吉田 栞汰", "池之内 秀一", "服部 茜",
-    "浦部 克人", "吉田 竜太", "小川 久美", "笹淵 弘幸", "佐藤 裕",
-    "篠原 理玖", "髙橋 蓮", "兼田 康平", "村田 定治", "瀬崎 雅信",
-    "高木 一", "柴田 俊也"
+    { "name": "山田 常久", "email": "yamada.tsunehisa@tokyu-cnst.co.jp" },
+    { "name": "石澤 慎司", "email": "ishizawa.shinji@tokyu-cnst.co.jp" },
+    { "name": "田中 真奈美", "email": "tanaka.manami@tokyu-cnst.co.jp" },
+    { "name": "山本 瞳瑠", "email": "yamamoto.meru@tokyu-cnst.co.jp" },
+    { "name": "城戸 いちご", "email": "kido.ichigo@tokyu-cnst.co.jp" },
+    { "name": "藤田 孝", "email": "fujita.takashi@tokyu-cnst.co.jp" },
+    { "name": "大久保 響", "email": "ookubo.hibiki@tokyu-cnst.co.jp" },
+    { "name": "吉田 栞汰", "email": "yoshida.kanta@tokyu-cnst.co.jp" },
+    { "name": "池之内 秀一", "email": "ikenouchi.hidekazu@tokyu-cnst.co.jp" },
+    { "name": "服部 茜", "email": "hattori.akane@tokyu-cnst.co.jp" },
+    { "name": "浦部 克人", "email": "urabe.katsuhito@tokyu-cnst.co.jp" },
+    { "name": "吉田 竜太", "email": "yoshida.ryuuta@tokyu-cnst.co.jp" },
+    { "name": "小川 久美", "email": "ogawa.kumi@tokyu-cnst.co.jp" },
+    { "name": "笹淵 弘幸", "email": "sasabuchi.hiroyuki@tokyu-cnst.co.jp" },
+    { "name": "佐藤 裕", "email": "satou.yutaka@tokyu-cnst.co.jp" },
+    { "name": "篠原 理玖", "email": "shinohara.riku@tokyu-cnst.co.jp" },
+    { "name": "髙橋 蓮", "email": "takahashi.ren@tokyu-cnst.co.jp" },
+    { "name": "兼田 康平", "email": "kaneda.kouhei@tokyu-cnst.co.jp" },
+    { "name": "村田 定治", "email": "murata.teiji@tokyu-cnst.co.jp" },
+    { "name": "瀬崎 雅信", "email": "sezaki.masanobu@tokyu-cnst.co.jp" },
+    { "name": "高木 一", "email": "takaki.hajime@tokyu-cnst.co.jp" },
+    { "name": "柴田 俊也", "email": "shibata.shunya@tokyu-cnst.co.jp" }
   ],
   "secondTierByContractor": {
     "岸本建設": [], "世紀東急工業": [], "卯月林業": [], "SRK": [], "斎藤組": [], "あすか創建": [],

@@ -231,6 +231,44 @@ const MasterAdmin = (() => {
     container.appendChild(c);
   }
 
+  function staffEditor(container) {
+    const master = MasterData.get();
+    const c = UI.el('div', { class: 'card' });
+    c.appendChild(UI.el('div', { class: 'card-title', text: '担当者（氏名・メールアドレス）' }));
+    const body = UI.el('div', {});
+    c.appendChild(body);
+    function renderItems() {
+      body.innerHTML = '';
+      (master.staff || []).forEach((s) => {
+        const row = UI.el('div', { class: 'field' });
+        const top = UI.el('div', { style: 'display:flex;align-items:center;justify-content:space-between;' });
+        top.appendChild(UI.el('div', { text: s.name }));
+        const del = UI.el('button', { class: 'btn btn-danger', style: 'padding:6px 10px;font-size:12px;', text: '削除' });
+        del.addEventListener('click', () => { MasterData.removeStaff(s.name); renderItems(); });
+        top.appendChild(del);
+        row.appendChild(top);
+        const emailInput = UI.el('input', { type: 'email', placeholder: 'メールアドレス', value: s.email || '', style: 'margin-top:6px;font-size:13px;' });
+        emailInput.addEventListener('change', () => { MasterData.addStaff(s.name, emailInput.value.trim()); });
+        row.appendChild(emailInput);
+        body.appendChild(row);
+      });
+      const addRow = UI.el('div', { class: 'field' });
+      const nameInput = UI.el('input', { type: 'text', placeholder: '氏名', style: 'margin-bottom:6px;' });
+      const emailInput = UI.el('input', { type: 'email', placeholder: 'メールアドレス（任意）', style: 'margin-bottom:6px;' });
+      const addBtn = UI.el('button', { class: 'btn btn-primary', text: '追加' });
+      addBtn.addEventListener('click', () => {
+        if (!nameInput.value.trim()) return;
+        MasterData.addStaff(nameInput.value.trim(), emailInput.value.trim());
+        nameInput.value = ''; emailInput.value = '';
+        renderItems();
+      });
+      addRow.appendChild(nameInput); addRow.appendChild(emailInput); addRow.appendChild(addBtn);
+      body.appendChild(addRow);
+    }
+    renderItems();
+    container.appendChild(c);
+  }
+
   function renderAll() {
     root.innerHTML = '';
     renderDiagnostics(root);
@@ -246,8 +284,9 @@ const MasterAdmin = (() => {
 
     if (activeCat === 'machines') machineEditor(root);
     else if (activeCat === 'secondTier') secondTierEditor(root);
+    else if (activeCat === 'staff') staffEditor(root);
     else {
-      const map = { contractors: '業者名', staff: '担当者', owners: '所有者', locations: '使用場所', drivers: '運転者候補' };
+      const map = { contractors: '業者名', owners: '所有者', locations: '使用場所', drivers: '運転者候補' };
       simpleListEditor(root, activeCat, map[activeCat]);
     }
   }

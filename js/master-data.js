@@ -9,6 +9,7 @@ const MasterData = (() => {
     const local = Storage.getMasterLocal();
     data = local ? local : base;
     migrateSecondTier();
+    migrateStaff();
     return data;
   }
 
@@ -19,6 +20,12 @@ const MasterData = (() => {
     (data.contractors || []).forEach((name) => {
       if (!data.secondTierByContractor[name]) data.secondTierByContractor[name] = [];
     });
+  }
+
+  // 旧形式(staffが氏名の単純リスト)から {name, email} 形式への移行
+  function migrateStaff() {
+    if (!Array.isArray(data.staff)) { data.staff = []; return; }
+    data.staff = data.staff.map((s) => (typeof s === 'string' ? { name: s, email: '' } : s));
   }
 
   function get() { return data; }
@@ -81,8 +88,33 @@ const MasterData = (() => {
     save(data);
   }
 
+  // 担当者(staff)は {name, email} のオブジェクト配列
+  function staffNames() {
+    return (data.staff || []).map((s) => s.name);
+  }
+
+  function staffEmailFor(name) {
+    const s = (data.staff || []).find((x) => x.name === name);
+    return s ? s.email : '';
+  }
+
+  function addStaff(name, email) {
+    if (!name || !name.trim()) return;
+    if (!data.staff) data.staff = [];
+    const existing = data.staff.find((s) => s.name === name);
+    if (existing) existing.email = email || '';
+    else data.staff.push({ name: name.trim(), email: (email || '').trim() });
+    save(data);
+  }
+
+  function removeStaff(name) {
+    data.staff = (data.staff || []).filter((s) => s.name !== name);
+    save(data);
+  }
+
   return {
     load, get, save, machinesFor, addToList, removeFromList, addMachine, removeMachine,
     secondTierFor, addSecondTier, removeSecondTier,
+    staffNames, staffEmailFor, addStaff, removeStaff,
   };
 })();
