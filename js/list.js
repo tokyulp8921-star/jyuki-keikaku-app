@@ -3,6 +3,7 @@ const ListView = (() => {
   let root = null;
   let entries = [];
   let query = '';
+  let selected = new Set();
   const RETENTION_MS = 62 * 24 * 60 * 60 * 1000; // 約2か月
 
   function parseFileName(name) {
@@ -69,15 +70,20 @@ const ListView = (() => {
     return (e.fileName || '').toLowerCase().includes(q) || (e.gyoshamei || '').toLowerCase().includes(q) || (e.sagyobi || '').includes(q);
   }
 
+  async function fetchEntryBlob(e) {
+    if (e.dropboxPath && window.Dropbox && Dropbox.isLinked()) {
+      return Dropbox.downloadFile(e.dropboxPath);
+    }
+    if (e.hasLocal || e.localUrl) {
+      return IdbStore.get(e.fileName);
+    }
+    return null;
+  }
+
   async function openEntry(e) {
     UI.toast('PDFを開いています…');
     try {
-      let blob;
-      if (e.dropboxPath && window.Dropbox && Dropbox.isLinked()) {
-        blob = await Dropbox.downloadFile(e.dropboxPath);
-      } else if (e.hasLocal || e.localUrl) {
-        blob = await IdbStore.get(e.fileName);
-      }
+      const blob = await fetchEntryBlob(e);
       if (!blob) {
         return UI.toast(`PDFを取得できませんでした（fileName=${e.fileName} / hasLocal=${!!e.hasLocal} / dropboxPath=${e.dropboxPath || 'なし'}）`);
       }
@@ -87,6 +93,33 @@ const ListView = (() => {
     } catch (err) {
       console.error(err);
       UI.toast('PDFを開けませんでした');
+    }
+  }
+
+  // チェックした複数PDFを1つのPDFにまとめて新しいタブで開く(A3サイズのまま結合されるので、
+  // 印刷ダイアログでは「実際のサイズ」または用紙をA3に指定して印刷する)
+  async function printSelected() {
+    const targets = entries.filter((e) => selected.has(e.fileName));
+    if (!targets.length) return;
+    UI.toast('印刷用PDFを準備しています…');
+    try {
+      const merged = await PDFLib.PDFDocument.create();
+      for (const e of targets) {
+        const blob = await fetchEntryBlob(e);
+        if (!blob) { console.warn('印刷対象を取得できませんでした', e.fileName); continue; }
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        const src = await PDFLib.PDFDocument.load(bytes);
+        const pages = await merged.copyPages(src, src.getPageIndices());
+        pages.forEach((p) => merged.addPage(p));
+      }
+      if (merged.getPageCount() === 0) return UI.toast('印刷対象のPDFを取得できませんでした');
+      const bytes = await merged.save();
+      const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+      window.open(url, '_blank');
+      UI.toast('新しいタブでPDFを開きました。印刷/共有ボタンからA3で印刷してください');
+    } catch (err) {
+      console.error(err);
+      UI.toast('印刷用PDFの作成に失敗しました: ' + err.message);
     }
   }
 
@@ -111,15 +144,26 @@ const ListView = (() => {
     searchBar.appendChild(input);
     root.appendChild(searchBar);
 
+    const printBar = UI.el('div', { style: 'margin-bottom:10px;' });
+    root.appendChild(printBar);
+
     const listCard = UI.el('div', { class: 'card' });
     root.appendChild(listCard);
     renderListInto(listCard);
+    renderPrintBar();
 
     const fab = UI.el('button', { class: 'fab-new', text: '＋ 新しい計画の作成' });
     fab.addEventListener('click', () => { Wizard.startNew(); App.navigate('wizard'); });
     root.appendChild(fab);
 
-    function renderList() { renderListInto(listCard); }
+    function renderList() { renderListInto(listCard); renderPrintBar(); }
+    function renderPrintBar() {
+      printBar.innerHTML = '';
+      if (!selected.size) return;
+      const btn = UI.el('button', { class: 'btn btn-primary btn-block', text: `選択した${selected.size}件をA3で印刷` });
+      btn.addEventListener('click', printSelected);
+      printBar.appendChild(btn);
+    }
     function renderListInto(container) {
       container.innerHTML = '';
       const filtered = entries.filter(matches);
@@ -130,6 +174,15 @@ const ListView = (() => {
       filtered.forEach((e) => {
         const item = UI.el('div', { class: 'list-item' });
         const parsed = parseFileName(e.fileName);
+        const checkbox = UI.el('input', { type: 'checkbox' });
+        checkbox.checked = selected.has(e.fileName);
+        checkbox.addEventListener('click', (ev) => ev.stopPropagation());
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) selected.add(e.fileName); else selected.delete(e.fileName);
+          renderPrintBar();
+        });
+        item.appendChild(checkbox);
+        if (e.tantosha6) item.appendChild(UI.el('div', { style: 'font-size:11px;color:var(--muted);flex:0 0 auto;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;', text: e.tantosha6 }));
         const clickArea = UI.el('div', { style: 'display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer;' });
         clickArea.appendChild(UI.el('div', { class: 'li-date', text: parsed.ymd || '-' }));
         clickArea.appendChild(UI.el('div', { class: 'li-name', text: parsed.gyoshamei || e.fileName }));
@@ -146,6 +199,7 @@ const ListView = (() => {
 
   async function mount(container) {
     root = container;
+    selected = new Set();
     root.innerHTML = '<div class="empty-state">読み込み中…</div>';
     await loadEntries();
     render();
