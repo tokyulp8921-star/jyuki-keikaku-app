@@ -86,7 +86,7 @@ const Dropbox = (() => {
       }
     }
     if (!path) {
-      throw new Error('共有フォルダのパスを取得できませんでした。Dropboxアプリ/サイトでこの共有フォルダを開き、「自分のDropboxに追加」を行ってから、もう一度お試しください。');
+      throw new Error('共有フォルダのパスを取得できませんでした。Dropboxアプリ/サイトでこの共有フォルダを開き、「自分のDropboxに追加」を行ってから、もう一度お試しください。 [詳細: ' + JSON.stringify(meta) + ']');
     }
     folderPathCache = path;
     return folderPathCache;
