@@ -110,7 +110,7 @@ const ListView = (() => {
   // 印刷ダイアログでは「実際のサイズ」または用紙をA3に指定して印刷する)
   async function printSelected() {
     const targets = entries.filter((e) => selected.has(e.fileName));
-    if (!targets.length) return;
+    if (!targets.length) return window.alert('印刷したい計画書のチェックボックスにチェックを入れてください。');
     if (!window.confirm(PRINT_INSTRUCTIONS)) return;
     UI.toast('印刷用PDFを準備しています…');
     try {
@@ -177,26 +177,21 @@ const ListView = (() => {
     searchBar.appendChild(input);
     root.appendChild(searchBar);
 
-    const printBar = UI.el('div', { style: 'margin-bottom:10px;' });
-    root.appendChild(printBar);
+    root.appendChild(UI.el('div', { class: 'section-hint', text: '印刷する場合は、印刷したい計画書のチェックボックスにチェックを入れてから「🖨 選択したPDFを印刷」を押してください。' }));
 
     const listCard = UI.el('div', { class: 'card' });
     root.appendChild(listCard);
     renderListInto(listCard);
-    renderPrintBar();
+
+    const printFab = UI.el('button', { class: 'fab-print', text: '🖨 選択したPDFを印刷' });
+    printFab.addEventListener('click', printSelected);
+    root.appendChild(printFab);
 
     const fab = UI.el('button', { class: 'fab-new', text: '＋ 新しい計画の作成' });
     fab.addEventListener('click', () => { Wizard.startNew(); App.navigate('wizard'); });
     root.appendChild(fab);
 
-    function renderList() { renderListInto(listCard); renderPrintBar(); }
-    function renderPrintBar() {
-      printBar.innerHTML = '';
-      if (!selected.size) return;
-      const btn = UI.el('button', { class: 'btn btn-primary btn-block', text: `選択した${selected.size}件をA3で印刷` });
-      btn.addEventListener('click', printSelected);
-      printBar.appendChild(btn);
-    }
+    function renderList() { renderListInto(listCard); }
     function renderListInto(container) {
       container.innerHTML = '';
       const filtered = entries.filter(matches);
@@ -212,7 +207,6 @@ const ListView = (() => {
         checkbox.addEventListener('click', (ev) => ev.stopPropagation());
         checkbox.addEventListener('change', () => {
           if (checkbox.checked) selected.add(e.fileName); else selected.delete(e.fileName);
-          renderPrintBar();
         });
         item.appendChild(checkbox);
         if (e.tantosha6) item.appendChild(UI.el('div', { style: 'font-size:11px;color:var(--muted);flex:0 0 auto;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;', text: e.tantosha6 }));
