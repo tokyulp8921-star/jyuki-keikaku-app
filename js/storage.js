@@ -8,6 +8,7 @@ const Storage = (() => {
     masterLocal: 'jyuki_master_local_v1',
     masterUpdatedAt: 'jyuki_master_updated_at_v1',
     dropboxConfig: 'jyuki_dropbox_config_v1',
+    printed: 'jyuki_printed_v1',
   };
 
   function get(key, fallback) {
@@ -67,6 +68,14 @@ const Storage = (() => {
   function saveDropboxConfig(cfg) { set(KEYS.dropboxConfig, cfg); }
   function loadDropboxConfig() { return get(KEYS.dropboxConfig, null); }
 
+  // --- 印刷済みファイル名の記録(端末ローカル。fileNameで判定するのでDropbox同期分にも適用される) ---
+  function getPrintedFileNames() { return get(KEYS.printed, []); }
+  function markPrinted(fileNames) {
+    const current = new Set(getPrintedFileNames());
+    fileNames.forEach((f) => current.add(f));
+    set(KEYS.printed, [...current]);
+  }
+
   return {
     saveDraft, loadDraft, clearDraft,
     pushHistory, getHistory,
@@ -74,5 +83,6 @@ const Storage = (() => {
     getPdfIndex, addPdfIndexEntry, setPdfIndex,
     getMasterLocal, saveMasterLocal, getMasterUpdatedAt,
     saveDropboxConfig, loadDropboxConfig,
+    getPrintedFileNames, markPrinted,
   };
 })();

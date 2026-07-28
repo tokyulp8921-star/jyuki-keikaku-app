@@ -115,6 +115,7 @@ const ListView = (() => {
     UI.toast('印刷用PDFを準備しています…');
     try {
       const merged = await PDFLib.PDFDocument.create();
+      const printedNames = [];
       for (const e of targets) {
         const blob = await fetchEntryBlob(e);
         if (!blob) { console.warn('印刷対象を取得できませんでした', e.fileName); continue; }
@@ -122,11 +123,14 @@ const ListView = (() => {
         const src = await PDFLib.PDFDocument.load(bytes);
         const pages = await merged.copyPages(src, src.getPageIndices());
         pages.forEach((p) => merged.addPage(p));
+        printedNames.push(e.fileName);
       }
       if (merged.getPageCount() === 0) return UI.toast('印刷対象のPDFを取得できませんでした');
       const bytes = await merged.save();
       const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
       window.open(url, '_blank');
+      Storage.markPrinted(printedNames);
+      render();
       UI.toast('新しいタブでPDFを開きました。印刷/共有ボタンからA3で印刷してください');
     } catch (err) {
       console.error(err);
@@ -199,6 +203,7 @@ const ListView = (() => {
         container.appendChild(UI.el('div', { class: 'empty-state', text: '保存されたPDFがありません' }));
         return;
       }
+      const printedNames = new Set(Storage.getPrintedFileNames());
       filtered.forEach((e) => {
         const item = UI.el('div', { class: 'list-item' });
         const parsed = parseFileName(e.fileName);
@@ -214,6 +219,7 @@ const ListView = (() => {
         clickArea.appendChild(UI.el('div', { class: 'li-date', text: parsed.ymd || '-' }));
         clickArea.appendChild(UI.el('div', { class: 'li-name', text: parsed.gyoshamei || e.fileName }));
         clickArea.appendChild(UI.el('div', { class: 'li-status', text: e.dropboxPath ? 'Dropbox' : 'ローカル' }));
+        if (printedNames.has(e.fileName)) clickArea.appendChild(UI.el('div', { class: 'badge', text: '印刷済み' }));
         clickArea.addEventListener('click', () => openEntry(e));
         item.appendChild(clickArea);
         const reuseBtn = UI.el('button', { class: 'btn btn-secondary', style: 'padding:6px 10px;font-size:12px;flex:0 0 auto;', text: '再利用' });
