@@ -96,11 +96,22 @@ const ListView = (() => {
     }
   }
 
+  const PRINT_INSTRUCTIONS = [
+    '【印刷方法】',
+    '① OKを押すと、選択したPDFをまとめた新しいタブが開きます',
+    '② 開いたPDF画面の共有アイコン（またはメニュー）から「印刷」を選択',
+    '③ 印刷設定で用紙サイズを「A3」に、倍率を「実際のサイズ／100%」に設定',
+    '④ 印刷を実行してください',
+    '',
+    '※ 用紙サイズを自動調整（用紙に合わせる）にすると、原寸と異なるサイズで印刷される場合があります',
+  ].join('\n');
+
   // チェックした複数PDFを1つのPDFにまとめて新しいタブで開く(A3サイズのまま結合されるので、
   // 印刷ダイアログでは「実際のサイズ」または用紙をA3に指定して印刷する)
   async function printSelected() {
     const targets = entries.filter((e) => selected.has(e.fileName));
     if (!targets.length) return;
+    if (!window.confirm(PRINT_INSTRUCTIONS)) return;
     UI.toast('印刷用PDFを準備しています…');
     try {
       const merged = await PDFLib.PDFDocument.create();
