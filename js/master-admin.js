@@ -136,6 +136,42 @@ const MasterAdmin = (() => {
       const btn = UI.el('button', { class: 'btn btn-danger', text: '連携を解除' });
       btn.addEventListener('click', () => { Dropbox.unlink(); UI.toast('連携を解除しました'); renderAll(); });
       body.appendChild(UI.el('div', { class: 'field' }, btn));
+
+      const testResult = UI.el('div', { style: 'font-size:11.5px;white-space:pre-wrap;word-break:break-all;color:var(--muted);' });
+      const testBtn = UI.el('button', { class: 'btn btn-secondary btn-block', text: '保存先フォルダへの接続テスト' });
+      testBtn.addEventListener('click', async () => {
+        testResult.textContent = 'テスト中…';
+        const lines = [];
+        let folder;
+        try {
+          folder = await Dropbox.resolveFolderPath();
+          lines.push('① フォルダパス解決: OK (' + folder + ')');
+        } catch (e) {
+          lines.push('① フォルダパス解決: 失敗 - ' + e.message);
+          testResult.textContent = lines.join('\n');
+          return;
+        }
+        let uploadedPath = null;
+        try {
+          const bytes = new TextEncoder().encode('接続テスト ' + new Date().toISOString());
+          uploadedPath = await Dropbox.uploadPdf('接続テスト.txt', bytes);
+          lines.push('② テストアップロード: OK (' + uploadedPath + ')');
+        } catch (e) {
+          lines.push('② テストアップロード: 失敗 - ' + e.message);
+        }
+        try {
+          const list = await Dropbox.listFolder();
+          lines.push('③ フォルダ一覧取得: OK (' + list.length + '件のPDF)');
+        } catch (e) {
+          lines.push('③ フォルダ一覧取得: 失敗 - ' + e.message);
+        }
+        if (uploadedPath) {
+          try { await Dropbox.deleteFile(uploadedPath); lines.push('④ テストファイル削除: OK'); }
+          catch (e) { lines.push('④ テストファイル削除: 失敗 - ' + e.message); }
+        }
+        testResult.textContent = lines.join('\n');
+      });
+      body.appendChild(UI.el('div', { class: 'field' }, [testBtn, testResult]));
     }
     container.appendChild(c);
   }
