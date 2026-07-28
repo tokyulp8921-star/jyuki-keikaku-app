@@ -8,6 +8,12 @@ const Dropbox = (() => {
 
   let folderPathCache = null;
 
+  // Dropbox-API-Argヘッダーはブラウザの制約でISO-8859-1範囲外の文字(日本語など)を直接渡せないため、
+  // \uXXXXエスケープに変換してASCII安全な文字列にする
+  function apiArgHeader(obj) {
+    return JSON.stringify(obj).replace(/[^\x00-\x7f]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+  }
+
   function getConfig() { return Storage.loadDropboxConfig() || { appKey: '', folderUrl: '', folderPassword: '' }; }
   function saveConfig(cfg) { Storage.saveDropboxConfig(cfg); folderPathCache = null; }
   function hasConfig() { const c = getConfig(); return !!(c.appKey && c.folderUrl); }
@@ -66,7 +72,23 @@ const Dropbox = (() => {
     if (cfg.folderPassword) body.link_password = cfg.folderPassword;
     const res = await apiCall('/sharing/get_shared_link_metadata', body);
     const meta = await res.json();
-    folderPathCache = meta.path_lower || meta.path_display;
+    let path = meta.path_lower || meta.path_display;
+    if (!path) {
+      // 連携アカウント自身の「マイDropbox」にまだ追加(マウント)されていない共有フォルダの場合、
+      // パスが返らないため自動でマウントを試みる
+      const sharedFolderId = meta.shared_folder_id || meta.id;
+      if (sharedFolderId) {
+        try {
+          const mountRes = await apiCall('/sharing/mount_folder', { shared_folder_id: sharedFolderId });
+          const mounted = await mountRes.json();
+          path = mounted.path_lower || mounted.path_display;
+        } catch (e) { /* マウント不可・既にマウント済み等。下のエラーで案内する */ }
+      }
+    }
+    if (!path) {
+      throw new Error('共有フォルダのパスを取得できませんでした。Dropboxアプリ/サイトでこの共有フォルダを開き、「自分のDropboxに追加」を行ってから、もう一度お試しください。');
+    }
+    folderPathCache = path;
     return folderPathCache;
   }
 
@@ -76,7 +98,7 @@ const Dropbox = (() => {
       content: true,
       extraHeaders: {
         'Content-Type': 'application/octet-stream',
-        'Dropbox-API-Arg': JSON.stringify({ path: `${folder}/${fileName}`, mode: 'add', autorename: true, mute: false }),
+        'Dropbox-API-Arg': apiArgHeader({ path: `${folder}/${fileName}`, mode: 'add', autorename: true, mute: false }),
       },
     });
     const meta = await res.json();
@@ -90,7 +112,7 @@ const Dropbox = (() => {
       content: true,
       extraHeaders: {
         'Content-Type': 'application/octet-stream',
-        'Dropbox-API-Arg': JSON.stringify({ path: `${folder}/master.json`, mode: 'overwrite', mute: true }),
+        'Dropbox-API-Arg': apiArgHeader({ path: `${folder}/master.json`, mode: 'overwrite', mute: true }),
       },
     });
   }
@@ -118,7 +140,7 @@ const Dropbox = (() => {
   async function downloadFile(path) {
     const res = await apiCall('/files/download', null, {
       content: true,
-      extraHeaders: { 'Dropbox-API-Arg': JSON.stringify({ path }) },
+      extraHeaders: { 'Dropbox-API-Arg': apiArgHeader({ path }) },
     });
     return res.blob();
   }
