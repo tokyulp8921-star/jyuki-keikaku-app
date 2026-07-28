@@ -111,6 +111,10 @@ const Dropbox = (() => {
     return entries.filter((e) => e['.tag'] === 'file' && e.name.toLowerCase().endsWith('.pdf'));
   }
 
+  async function deleteFile(path) {
+    await apiCall('/files/delete_v2', { path });
+  }
+
   async function downloadFile(path) {
     const res = await apiCall('/files/download', null, {
       content: true,
@@ -156,7 +160,7 @@ const Dropbox = (() => {
 
   return {
     isLinked, tryAutoLink, linkWithToken, unlink,
-    resolveFolderPath, uploadPdf, uploadMasterJson, listFolder, downloadFile,
+    resolveFolderPath, uploadPdf, uploadMasterJson, listFolder, downloadFile, deleteFile,
     startOAuth, exchangeCode, refreshAccessToken,
     getConfig, saveConfig, hasConfig,
   };

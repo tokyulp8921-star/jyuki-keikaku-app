@@ -136,6 +136,28 @@ const ListView = (() => {
     }
   }
 
+  async function deleteEntry(e) {
+    const dropboxNote = e.dropboxPath ? '\n※Dropbox上のファイルも削除されます。' : '';
+    const ok = window.confirm(`「${e.fileName}」を削除しますか？この操作は取り消せません。${dropboxNote}`);
+    if (!ok) return;
+    UI.toast('削除しています…');
+    try {
+      if (e.dropboxPath && window.Dropbox && Dropbox.isLinked()) {
+        try { await Dropbox.deleteFile(e.dropboxPath); } catch (err) { console.warn('Dropbox削除に失敗', err); }
+      }
+      try { await IdbStore.remove(e.fileName); } catch (err) { /* noop */ }
+      try { await IdbStore.removePlan(e.fileName); } catch (err) { /* noop */ }
+      Storage.setPdfIndex(Storage.getPdfIndex().filter((x) => x.fileName !== e.fileName));
+      selected.delete(e.fileName);
+      UI.toast(`${e.fileName} を削除しました`);
+      await loadEntries();
+      render();
+    } catch (err) {
+      console.error(err);
+      UI.toast('削除に失敗しました: ' + err.message);
+    }
+  }
+
   function render() {
     root.innerHTML = '';
     const searchBar = UI.el('div', { class: 'search-bar' });
@@ -192,6 +214,9 @@ const ListView = (() => {
         const reuseBtn = UI.el('button', { class: 'btn btn-secondary', style: 'padding:6px 10px;font-size:12px;flex:0 0 auto;', text: '再利用' });
         reuseBtn.addEventListener('click', (ev) => { ev.stopPropagation(); reuseEntry(e); });
         item.appendChild(reuseBtn);
+        const delBtn = UI.el('button', { class: 'btn btn-danger', style: 'padding:6px 10px;font-size:12px;flex:0 0 auto;', text: '削除' });
+        delBtn.addEventListener('click', (ev) => { ev.stopPropagation(); deleteEntry(e); });
+        item.appendChild(delBtn);
         container.appendChild(item);
       });
     }
