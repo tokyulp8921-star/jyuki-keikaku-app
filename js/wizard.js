@@ -8,6 +8,7 @@ const Wizard = (() => {
   let pendingNextPlanAfterSave = false;
   let master = null;
   let lastError = '';
+  let reuseMode = false; // 再利用時: 入力2・入力3(打合せ日時・作業日昼夜別)だけ確認させ、完了後は保存前確認へ直行する
 
   function ctxBase() {
     return {
@@ -30,6 +31,7 @@ const Wizard = (() => {
     root.innerHTML = '';
     saveDraftNow();
     if (phase === 'header') {
+      if (reuseMode && stepIdx > 2) { reuseMode = false; phase = 'confirmName'; return renderCurrent(); }
       if (stepIdx >= totalHeaderSteps()) { phase = 'machine'; stepIdx = 0; return renderCurrent(); }
       UI.progress(root, stepIdx + 1, totalHeaderSteps() + totalMachineSteps(), `共通情報 ${stepIdx + 1}/${totalHeaderSteps()}`);
       const ctx = ctxBase();
@@ -290,12 +292,15 @@ const Wizard = (() => {
   function startNew() {
     plan = PlanState.newPlan();
     phase = 'header'; stepIdx = 0; machineIndex = 0; pendingNextPlanAfterSave = false; pendingFileName = null;
+    reuseMode = false;
     forceFreshState = true;
     if (root) renderCurrent();
   }
 
   // 一覧の「再利用」ボタンから呼ばれる: 保存済みplanを引き継ぎつつ、
-  // 打合せ日(入力2)は今日、作業日(入力4)は翌平日に自動更新した新しい計画として開始する
+  // 打合せ日(入力2)は今日、作業日(入力4)は翌平日に自動更新した新しい計画として開始する。
+  // 入力2(打合せ日時)・入力3(作業日・昼夜別)の2ステップだけ確認・修正させ、
+  // 完了後はそれ以降の入力(担当者・署名・機械情報等)を再入力させず保存前確認へ直行する。
   function startFromPlan(sourcePlan) {
     plan = JSON.parse(JSON.stringify(sourcePlan));
     plan.id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -305,10 +310,10 @@ const Wizard = (() => {
     plan.header.uchiawaseDate = today;
     plan.header.sagyobi = Holidays.nextBusinessDayAfter(today);
     plan.header.uchiawaseTime = '';
-    // 日付だけ更新して、そのまま保存前の確認画面へ(内容を再入力させない)
     machineIndex = Math.max(0, plan.machines.length - 1);
     pendingNextPlanAfterSave = false; pendingFileName = null;
-    phase = 'confirmName';
+    phase = 'header'; stepIdx = 1; // h2(入力2: 打合せ日時)から開始
+    reuseMode = true;
     forceFreshState = true;
     if (root) renderCurrent();
   }
