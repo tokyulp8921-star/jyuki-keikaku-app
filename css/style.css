@@ -107,6 +107,12 @@ html, body {
   border: none; border-radius: 26px; padding: 13px 18px; font-size: 14px; font-weight: 700;
   box-shadow: 0 3px 10px rgba(0,0,0,.25); }
 
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 50;
+  display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-box { background: var(--card); border-radius: 14px; padding: 18px; width: 100%; max-width: 340px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+.modal-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+
 .fab-print { position: fixed; right: 16px; bottom: 138px; z-index: 25; background: #2f9e5c; color: #fff;
   border: none; border-radius: 26px; padding: 13px 18px; font-size: 14px; font-weight: 700;
   box-shadow: 0 3px 10px rgba(0,0,0,.25); }

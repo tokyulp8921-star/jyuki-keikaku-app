@@ -127,5 +127,24 @@ const UI = (() => {
     toast._t = setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  return { el, card, field, selectField, textField, textAreaWithHistory, chipGroup, nextBar, progress, toast };
+  // 選択肢から1つ選ばせる簡易モーダル。choices: [{label, onClick, primary}]
+  function choiceModal(title, choices) {
+    const overlay = el('div', { class: 'modal-overlay' });
+    const box = el('div', { class: 'modal-box' });
+    box.appendChild(el('div', { class: 'modal-title', text: title }));
+    function close() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }
+    choices.forEach((c) => {
+      const b = el('button', { class: 'btn ' + (c.primary ? 'btn-primary' : 'btn-secondary') + ' btn-block', style: 'margin-top:8px;', text: c.label });
+      b.addEventListener('click', () => { close(); c.onClick(); });
+      box.appendChild(b);
+    });
+    const cancelBtn = el('button', { class: 'btn btn-secondary btn-block', style: 'margin-top:8px;', text: 'キャンセル' });
+    cancelBtn.addEventListener('click', close);
+    box.appendChild(cancelBtn);
+    overlay.addEventListener('click', (ev) => { if (ev.target === overlay) close(); });
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+  }
+
+  return { el, card, field, selectField, textField, textAreaWithHistory, chipGroup, nextBar, progress, toast, choiceModal };
 })();

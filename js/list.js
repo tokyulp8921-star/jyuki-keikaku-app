@@ -207,8 +207,13 @@ const ListView = (() => {
     printFab.addEventListener('click', printSelected);
     root.appendChild(printFab);
 
-    const fab = UI.el('button', { class: 'fab-new', text: '＋ 重機作業計画書を作成' });
-    fab.addEventListener('click', () => { Wizard.startNew(); App.navigate('wizard'); });
+    const fab = UI.el('button', { class: 'fab-new', text: '＋ 新しい計画書を作成' });
+    fab.addEventListener('click', () => {
+      UI.choiceModal('作成する計画書を選択してください', [
+        { label: '重機作業計画書', primary: true, onClick: () => { Wizard.startNew(); App.navigate('wizard'); } },
+        { label: 'クレーン計画書', onClick: () => { UI.toast('クレーン計画書は準備中です（テンプレートPDFをいただき次第、対応します）'); } },
+      ]);
+    });
     root.appendChild(fab);
 
     function renderList() { renderListInto(kikiCard, 'kiki'); renderListInto(craneCard, 'crane'); }
