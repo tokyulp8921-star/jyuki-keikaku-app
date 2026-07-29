@@ -270,26 +270,26 @@ const MasterAdmin = (() => {
   function driverEditor(container) {
     const master = MasterData.get();
     const c = UI.el('div', { class: 'card' });
-    c.appendChild(UI.el('div', { class: 'card-title', text: '運転者候補（所有者ごと）' }));
+    c.appendChild(UI.el('div', { class: 'card-title', text: '運転者候補（業者名ごと）' }));
     const body = UI.el('div', {});
     c.appendChild(body);
     function renderTree() {
       body.innerHTML = '';
-      (master.owners || []).forEach((owner) => {
+      (master.contractors || []).forEach((contractor) => {
         const row = UI.el('div', { class: 'field' });
-        row.appendChild(UI.el('div', { class: 'field-label', text: owner }));
-        (master.driversByOwner[owner] || []).forEach((name) => {
+        row.appendChild(UI.el('div', { class: 'field-label', text: contractor }));
+        (master.driversByContractor[contractor] || []).forEach((name) => {
           const r = UI.el('div', { style: 'display:flex;align-items:center;justify-content:space-between;margin:2px 0 2px 16px;' });
           r.appendChild(UI.el('div', { text: '└ ' + name }));
           const del = UI.el('button', { class: 'btn btn-danger', style: 'padding:4px 8px;font-size:11px;', text: '削除' });
-          del.addEventListener('click', () => { MasterData.removeDriver(owner, name); renderTree(); });
+          del.addEventListener('click', () => { MasterData.removeDriver(contractor, name); renderTree(); });
           r.appendChild(del);
           row.appendChild(r);
         });
         const addRow = UI.el('div', { style: 'display:flex;gap:8px;margin:6px 0 0 16px;' });
-        const input = UI.el('input', { type: 'text', placeholder: `${owner}の運転者候補を追加` });
+        const input = UI.el('input', { type: 'text', placeholder: `${contractor}の運転者候補を追加` });
         const addBtn = UI.el('button', { class: 'btn btn-primary', text: '追加' });
-        addBtn.addEventListener('click', () => { if (input.value.trim()) { MasterData.addDriver(owner, input.value.trim()); input.value = ''; renderTree(); } });
+        addBtn.addEventListener('click', () => { if (input.value.trim()) { MasterData.addDriver(contractor, input.value.trim()); input.value = ''; renderTree(); } });
         addRow.appendChild(input); addRow.appendChild(addBtn);
         row.appendChild(addRow);
         body.appendChild(row);

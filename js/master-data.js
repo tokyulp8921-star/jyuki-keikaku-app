@@ -29,12 +29,13 @@ const MasterData = (() => {
     data.staff = data.staff.map((s) => (typeof s === 'string' ? { name: s, email: '' } : s));
   }
 
-  // 旧形式(driversの単純リスト)からの移行、および未登録所有者分の初期化
+  // 旧形式(driversの単純リスト、または所有者ごとの形式)からの移行、および未登録業者名分の初期化
   function migrateDrivers() {
-    if (!data.driversByOwner) data.driversByOwner = {};
+    if (!data.driversByContractor) data.driversByContractor = data.driversByOwner || {};
     delete data.drivers;
-    (data.owners || []).forEach((name) => {
-      if (!data.driversByOwner[name]) data.driversByOwner[name] = [];
+    delete data.driversByOwner;
+    (data.contractors || []).forEach((name) => {
+      if (!data.driversByContractor[name]) data.driversByContractor[name] = [];
     });
   }
 
@@ -122,21 +123,21 @@ const MasterData = (() => {
     save(data);
   }
 
-  // 所有者ごとの運転者候補
-  function driversFor(owner) {
-    if (!data || !owner) return [];
-    return data.driversByOwner[owner] || [];
+  // 業者名(1次業者)ごとの運転者候補
+  function driversFor(contractor) {
+    if (!data || !contractor) return [];
+    return data.driversByContractor[contractor] || [];
   }
 
-  function addDriver(owner, name) {
-    if (!data.driversByOwner[owner]) data.driversByOwner[owner] = [];
-    if (!data.driversByOwner[owner].includes(name)) data.driversByOwner[owner].push(name);
+  function addDriver(contractor, name) {
+    if (!data.driversByContractor[contractor]) data.driversByContractor[contractor] = [];
+    if (!data.driversByContractor[contractor].includes(name)) data.driversByContractor[contractor].push(name);
     save(data);
   }
 
-  function removeDriver(owner, name) {
-    if (!data.driversByOwner[owner]) return;
-    data.driversByOwner[owner] = data.driversByOwner[owner].filter((v) => v !== name);
+  function removeDriver(contractor, name) {
+    if (!data.driversByContractor[contractor]) return;
+    data.driversByContractor[contractor] = data.driversByContractor[contractor].filter((v) => v !== name);
     save(data);
   }
 

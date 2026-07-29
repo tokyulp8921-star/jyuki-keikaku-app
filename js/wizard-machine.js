@@ -84,8 +84,9 @@ const MachineSteps = (() => {
     { id: 'm-driver', title: '運転者',
       render(container, ctx) {
         const m = ctx.machine;
-        const driverOpts = MasterData.driversFor(m.owner);
-        const c = card('運転者', m.owner ? `「${m.owner}」に登録されている運転者候補から選択、または自由入力できます` : 'プルダウン選択、または自由入力できます');
+        const contractor = ctx.plan.header.gyoshamei;
+        const driverOpts = MasterData.driversFor(contractor);
+        const c = card('運転者', contractor ? `「${contractor}」に登録されている運転者候補から選択、または自由入力できます` : 'プルダウン選択、または自由入力できます');
         selectField(c, { label: '運転者（候補）', value: driverOpts.includes(m.driver) ? m.driver : '', options: driverOpts, onChange: (v) => { m.driver = v; refreshText(); } });
         const txt = el('div', {});
         c._body.appendChild(txt);
