@@ -226,6 +226,7 @@ const Wizard = (() => {
       Storage.addPdfIndexEntry({
         fileName, createdAt: Date.now(), gyoshamei: plan.header.gyoshamei, sagyobi: plan.header.sagyobi,
         tantosha6: (plan.header.tantosha && plan.header.tantosha[0]) || '',
+        docType: plan.docType || 'kiki',
         dropboxPath, hasLocal,
       });
       if (warnings && warnings.length) {

@@ -88,13 +88,18 @@ html, body {
 .sig-canvas-wrap canvas { display: block; width: 100%; touch-action: none; }
 .sig-actions { display: flex; gap: 8px; margin-top: 8px; }
 
-.list-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.list-item { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; padding: 12px 10px; border-bottom: 1px solid var(--border); cursor: pointer; }
 .list-item:last-child { border-bottom: none; }
 .list-item .li-date { font-size: 11px; color: var(--muted); background: #eef4fe; border-radius: 6px; padding: 3px 6px; white-space: nowrap; }
-.list-item .li-name { flex: 1; font-size: 14.5px; font-weight: 600; }
+.list-item .li-name { flex: 1; font-size: 13.5px; font-weight: 600; min-width: 0; overflow-wrap: break-word; }
 .list-item .li-status { font-size: 11px; color: var(--muted); }
 .search-bar { display: flex; gap: 8px; margin-bottom: 10px; }
 .search-bar input { flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+
+.list-columns { display: flex; gap: 10px; align-items: flex-start; }
+.list-col { flex: 1; min-width: 0; }
+.list-col-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--muted); }
+.list-col .card { padding: 0; }
 
 .empty-state { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 13.5px; }
 

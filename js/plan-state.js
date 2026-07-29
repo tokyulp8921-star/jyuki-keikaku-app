@@ -31,6 +31,7 @@ const PlanState = (() => {
   function newPlan(carryHeaderFrom) {
     return {
       id: uid(),
+      docType: 'kiki', // 'kiki'=重機作業計画書 / 'crane'=クレーン計画書
       header: carryHeaderFrom ? JSON.parse(JSON.stringify(carryHeaderFrom)) : newHeader(),
       machines: [newMachine()],
       image: { dataUrl: '', rect: null },

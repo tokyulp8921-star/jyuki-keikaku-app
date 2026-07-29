@@ -70,6 +70,8 @@ const ListView = (() => {
     return (e.fileName || '').toLowerCase().includes(q) || (e.gyoshamei || '').toLowerCase().includes(q) || (e.sagyobi || '').includes(q);
   }
 
+  function docTypeOf(e) { return e.docType || 'kiki'; }
+
   async function fetchEntryBlob(e) {
     if (e.dropboxPath && window.Dropbox && Dropbox.isLinked()) {
       return Dropbox.downloadFile(e.dropboxPath);
@@ -183,24 +185,42 @@ const ListView = (() => {
 
     root.appendChild(UI.el('div', { class: 'section-hint', text: '印刷する場合は、印刷したい計画書のチェックボックスにチェックを入れてから「🖨 選択したPDFを印刷」を押してください。' }));
 
-    const listCard = UI.el('div', { class: 'card' });
-    root.appendChild(listCard);
-    renderListInto(listCard);
+    const columns = UI.el('div', { class: 'list-columns' });
+    root.appendChild(columns);
+
+    const kikiCol = UI.el('div', { class: 'list-col' });
+    kikiCol.appendChild(UI.el('div', { class: 'list-col-title', text: '重機作業計画書' }));
+    const kikiCard = UI.el('div', { class: 'card' });
+    kikiCol.appendChild(kikiCard);
+    columns.appendChild(kikiCol);
+
+    const craneCol = UI.el('div', { class: 'list-col' });
+    craneCol.appendChild(UI.el('div', { class: 'list-col-title', text: 'クレーン計画書' }));
+    const craneCard = UI.el('div', { class: 'card' });
+    craneCol.appendChild(craneCard);
+    columns.appendChild(craneCol);
+
+    renderListInto(kikiCard, 'kiki');
+    renderListInto(craneCard, 'crane');
 
     const printFab = UI.el('button', { class: 'fab-print', text: '🖨 選択したPDFを印刷' });
     printFab.addEventListener('click', printSelected);
     root.appendChild(printFab);
 
-    const fab = UI.el('button', { class: 'fab-new', text: '＋ 新しい計画の作成' });
+    const fab = UI.el('button', { class: 'fab-new', text: '＋ 重機作業計画書を作成' });
     fab.addEventListener('click', () => { Wizard.startNew(); App.navigate('wizard'); });
     root.appendChild(fab);
 
-    function renderList() { renderListInto(listCard); }
-    function renderListInto(container) {
+    function renderList() { renderListInto(kikiCard, 'kiki'); renderListInto(craneCard, 'crane'); }
+    function renderListInto(container, docType) {
       container.innerHTML = '';
-      const filtered = entries.filter(matches);
+      const filtered = entries.filter((e) => matches(e) && docTypeOf(e) === docType);
       if (!filtered.length) {
-        container.appendChild(UI.el('div', { class: 'empty-state', text: '保存されたPDFがありません' }));
+        if (docType === 'crane') {
+          container.appendChild(UI.el('div', { class: 'empty-state', text: 'クレーン計画書は準備中です（テンプレートPDFをいただき次第、対応します）' }));
+        } else {
+          container.appendChild(UI.el('div', { class: 'empty-state', text: '保存されたPDFがありません' }));
+        }
         return;
       }
       const printedNames = new Set(Storage.getPrintedFileNames());
