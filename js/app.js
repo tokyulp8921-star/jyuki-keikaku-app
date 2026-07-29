@@ -4,7 +4,7 @@ const App = (() => {
   const headerSub = document.getElementById('header-sub');
   let current = 'list';
 
-  const TITLES = { list: '一覧', wizard: '入力', preview: 'プレビュー', master: 'マスタ管理' };
+  const TITLES = { list: '一覧', wizard: '入力', 'crane-wizard': 'クレーン入力', preview: 'プレビュー', master: 'マスタ管理' };
 
   function navigate(view) {
     current = view;
@@ -13,6 +13,7 @@ const App = (() => {
     viewRoot.innerHTML = '';
     if (view === 'list') ListView.mount(viewRoot);
     else if (view === 'wizard') Wizard.mount(viewRoot);
+    else if (view === 'crane-wizard') CraneWizard.mount(viewRoot);
     else if (view === 'preview') PreviewView.mount(viewRoot);
     else if (view === 'master') MasterAdmin.mount(viewRoot);
   }

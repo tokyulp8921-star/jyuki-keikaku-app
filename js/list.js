@@ -145,8 +145,13 @@ const ListView = (() => {
     try {
       const plan = await IdbStore.getPlan(e.fileName);
       if (!plan) return UI.toast('この項目には再利用できる入力データが保存されていません（古い保存分、またはDropboxのみの項目）');
-      Wizard.startFromPlan(plan);
-      App.navigate('wizard');
+      if (docTypeOf(e) === 'crane') {
+        CraneWizard.startFromPlan(plan);
+        App.navigate('crane-wizard');
+      } else {
+        Wizard.startFromPlan(plan);
+        App.navigate('wizard');
+      }
     } catch (err) {
       console.error(err);
       UI.toast('再利用データの読み込みに失敗しました');
@@ -211,7 +216,7 @@ const ListView = (() => {
     fab.addEventListener('click', () => {
       UI.choiceModal('作成する計画書を選択してください', [
         { label: '重機作業計画書', primary: true, onClick: () => { Wizard.startNew(); App.navigate('wizard'); } },
-        { label: 'クレーン計画書', onClick: () => { UI.toast('クレーン計画書は準備中です（テンプレートPDFをいただき次第、対応します）'); } },
+        { label: 'クレーン計画書', onClick: () => { CraneWizard.startNew(); App.navigate('crane-wizard'); } },
       ]);
     });
     root.appendChild(fab);
@@ -221,11 +226,7 @@ const ListView = (() => {
       container.innerHTML = '';
       const filtered = entries.filter((e) => matches(e) && docTypeOf(e) === docType);
       if (!filtered.length) {
-        if (docType === 'crane') {
-          container.appendChild(UI.el('div', { class: 'empty-state', text: 'クレーン計画書は準備中です（テンプレートPDFをいただき次第、対応します）' }));
-        } else {
-          container.appendChild(UI.el('div', { class: 'empty-state', text: '保存されたPDFがありません' }));
-        }
+        container.appendChild(UI.el('div', { class: 'empty-state', text: '保存されたPDFがありません' }));
         return;
       }
       const printedNames = new Set(Storage.getPrintedFileNames());

@@ -9,6 +9,7 @@ const Storage = (() => {
     masterUpdatedAt: 'jyuki_master_updated_at_v1',
     dropboxConfig: 'jyuki_dropbox_config_v1',
     printed: 'jyuki_printed_v1',
+    craneDraft: 'jyuki_crane_draft_v1',
   };
 
   function get(key, fallback) {
@@ -26,6 +27,11 @@ const Storage = (() => {
   function saveDraft(plan) { set(KEYS.draft, plan); }
   function loadDraft() { return get(KEYS.draft, null); }
   function clearDraft() { remove(KEYS.draft); }
+
+  // --- クレーン計画書の下書き(重機作業計画書とは別枠で保持) ---
+  function saveCraneDraft(plan) { set(KEYS.craneDraft, plan); }
+  function loadCraneDraft() { return get(KEYS.craneDraft, null); }
+  function clearCraneDraft() { remove(KEYS.craneDraft); }
 
   // --- 自由入力の履歴(フィールドキーごとに最大5件、新しいものが先頭) ---
   function pushHistory(fieldKey, value) {
@@ -81,6 +87,7 @@ const Storage = (() => {
     pushHistory, getHistory,
     saveDropboxAuth, loadDropboxAuth, clearDropboxAuth,
     getPdfIndex, addPdfIndexEntry, setPdfIndex,
+    saveCraneDraft, loadCraneDraft, clearCraneDraft,
     getMasterLocal, saveMasterLocal, getMasterUpdatedAt,
     saveDropboxConfig, loadDropboxConfig,
     getPrintedFileNames, markPrinted,
