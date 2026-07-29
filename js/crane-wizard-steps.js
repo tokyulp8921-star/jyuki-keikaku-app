@@ -25,7 +25,17 @@ const CraneHeaderSteps = (() => {
     { id: 'c3', title: 'クレーン業者・運転者名',
       render(container, ctx) {
         const c = card('クレーン業者・運転者名');
-        selectField(c, { label: 'クレーン業者（プルダウン）', value: ctx.plan.header.craneGyosha, options: ctx.master.contractors, onChange: (v) => { ctx.plan.header.craneGyosha = v; } });
+        textField(c, { label: 'クレーン業者（自由入力）', value: ctx.plan.header.craneGyosha, onChange: (v) => { ctx.plan.header.craneGyosha = v; refreshSelect(); } });
+        const selectWrap = el('div', {});
+        c._body.appendChild(selectWrap);
+        function refreshSelect() {
+          selectWrap.innerHTML = '';
+          selectField({ _body: selectWrap }, {
+            label: 'クレーン業者（プルダウンから選択）', value: ctx.master.contractors.includes(ctx.plan.header.craneGyosha) ? ctx.plan.header.craneGyosha : '',
+            options: ctx.master.contractors, onChange: (v) => { ctx.plan.header.craneGyosha = v; refreshSelect(); },
+          });
+        }
+        refreshSelect();
         textField(c, { label: '運転者名', value: ctx.plan.header.untenshaMei, onChange: (v) => { ctx.plan.header.untenshaMei = v; } });
         container.appendChild(c);
         nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
@@ -33,8 +43,9 @@ const CraneHeaderSteps = (() => {
     { id: 'c4', title: '作業予定時間・使用業者・作業場所・作業内容',
       render(container, ctx) {
         const w = ctx.plan.work;
-        const c = card('作業予定時間・使用業者・作業場所・作業内容');
-        textField(c, { label: '作業予定時間', value: w.yoteiJikan, onChange: (v) => { w.yoteiJikan = v; } });
+        const c = card('作業予定時間・使用業者・作業場所・作業内容', '12時〜13時、24時〜翌1時をまたぐ場合はPDF上で自動的に2段書きになります');
+        textField(c, { label: '作業予定時間 開始', type: 'time', value: w.yoteiJikanStart, onChange: (v) => { w.yoteiJikanStart = v; } });
+        textField(c, { label: '作業予定時間 終了', type: 'time', value: w.yoteiJikanEnd, onChange: (v) => { w.yoteiJikanEnd = v; } });
         selectField(c, { label: '使用業者（プルダウン）', value: w.shiyoGyosha, options: ctx.master.contractors, onChange: (v) => { w.shiyoGyosha = v; } });
         selectField(c, { label: '作業場所（プルダウン）', value: w.basho, options: ctx.master.locations, onChange: (v) => { w.basho = v; } });
         textAreaWithHistory(c, { label: '作業内容', value: w.naiyo, historyKey: 'crane_naiyo', onChange: (v) => { w.naiyo = v; } });
@@ -78,7 +89,16 @@ const CraneHeaderSteps = (() => {
         const s = ctx.plan.safety;
         const c = card('地盤養生・アウトリガー最大張出');
         chipGroup(c, { label: '地盤養生（複数選択可）', value: s.jibanYojo, multi: true, options: ['皿受け', '敷鉄板', '地盤改良', '良質盛土', '無'], onChange: (v) => { s.jibanYojo = v; } });
-        chipGroup(c, { label: 'アウトリガー最大張出', value: s.outriggerJotai, options: ['不可:対策', '可', '無'], onChange: (v) => { s.outriggerJotai = v; } });
+        chipGroup(c, { label: 'アウトリガー最大張出', value: s.outriggerJotai, options: ['不可:対策', '可', '無'], onChange: (v) => { s.outriggerJotai = v; renderOutriggerDetail(); } });
+        const outriggerWrap = el('div', {});
+        c._body.appendChild(outriggerWrap);
+        function renderOutriggerDetail() {
+          outriggerWrap.innerHTML = '';
+          if (s.outriggerJotai === '不可:対策') {
+            textField({ _body: outriggerWrap }, { label: '不可：対策（内容）', value: s.outriggerFukaDetail, onChange: (v) => { s.outriggerFukaDetail = v; } });
+          }
+        }
+        renderOutriggerDetail();
         container.appendChild(c);
         nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
       } },

@@ -78,9 +78,9 @@ const CranePdfGen = (() => {
     return lines;
   }
 
-  function drawTextBox(page, font, text, { x, top, width, height, fontSizePt = 7, whiteOut = true }) {
+  function drawTextBox(page, font, text, { x, top, width, height, fontSizePt = 7, whiteOut = true, fillColor = null }) {
     const y = PAGE_H - top - height;
-    if (whiteOut) page.drawRectangle({ x, y, width, height, color: PDFLib.rgb(1, 1, 1) });
+    if (whiteOut) page.drawRectangle({ x, y, width, height, color: fillColor || PDFLib.rgb(1, 1, 1) });
     if (text == null || text === '') return;
     try {
       const lines = wrapTextByFont(font, text, width, fontSizePt);
@@ -216,11 +216,14 @@ const CranePdfGen = (() => {
       }
     }
     drawTextBox(page, font, h.craneGyosha, { ...boxFrom(HEADER.craneGyosha), fontSizePt: 7.5 });
-    drawTextBox(page, font, h.untenshaMei, { ...boxFrom(HEADER.untenshaMei), fontSizePt: 7.5 });
+    // 運転者名が空欄の場合は枠を黄色で塗りつぶして未記入を目立たせる
+    const YELLOW = PDFLib.rgb(1, 1, 0);
+    drawTextBox(page, font, h.untenshaMei, { ...boxFrom(HEADER.untenshaMei), fontSizePt: 7.5, fillColor: h.untenshaMei ? null : YELLOW });
 
     // 作業計画(107-118、列①のみ)
     const w = plan.work;
-    drawTextBox(page, font, w.yoteiJikan, { ...boxFrom(WORK.yoteiJikan), fontSizePt: 7 });
+    const yoteiJikanText = PdfGen.formatWorkTime(w.yoteiJikanStart, w.yoteiJikanEnd);
+    drawTextBox(page, font, yoteiJikanText, { ...boxFrom(WORK.yoteiJikan), fontSizePt: 7 });
     drawTextBox(page, font, w.shiyoGyosha, { ...boxFrom(WORK.shiyoGyosha), fontSizePt: 7 });
     drawTextBox(page, font, w.basho, { ...boxFrom(WORK.basho), fontSizePt: 7 });
     drawTextBox(page, font, w.naiyo, { ...boxFrom(WORK.naiyo), fontSizePt: 7 });
@@ -229,15 +232,20 @@ const CranePdfGen = (() => {
     drawTextBox(page, font, w.slingKei, { ...boxFrom(WORK.slingKei), fontSizePt: 7 });
     drawTextBox(page, font, w.slingNagasa, { ...boxFrom(WORK.slingNagasa), fontSizePt: 7 });
     drawTextBox(page, font, w.slingHon, { ...boxFrom(WORK.slingHon), fontSizePt: 7 });
-    drawTextBox(page, font, w.sekininsha, { ...boxFrom(WORK.sekininsha), fontSizePt: 7 });
-    drawTextBox(page, font, w.tamakakesha, { ...boxFrom(WORK.tamakakesha), fontSizePt: 7 });
-    drawTextBox(page, font, w.aizusha, { ...boxFrom(WORK.aizusha), fontSizePt: 7 });
+    // 作業責任者・玉掛者・合図者が空欄の場合は枠を黄色で塗りつぶして未記入を目立たせる
+    drawTextBox(page, font, w.sekininsha, { ...boxFrom(WORK.sekininsha), fontSizePt: 7, fillColor: w.sekininsha ? null : YELLOW });
+    drawTextBox(page, font, w.tamakakesha, { ...boxFrom(WORK.tamakakesha), fontSizePt: 7, fillColor: w.tamakakesha ? null : YELLOW });
+    drawTextBox(page, font, w.aizusha, { ...boxFrom(WORK.aizusha), fontSizePt: 7, fillColor: w.aizusha ? null : YELLOW });
 
     // 安全チェック(119-126): ラベル位置は白塗りのみ、値はチェックボックスへのマークで表現
     const s = plan.safety;
     Object.keys(SAFETY_LABELS).forEach((key) => {
+      if (key === 'outriggerFukaDetail') return;
       drawTextBox(page, font, '', boxFrom(SAFETY_LABELS[key]));
     });
+    // アウトリガー最大張出「不可：対策」選択時の詳細内容
+    const outriggerDetailText = (s.outriggerJotai === '不可:対策' && s.outriggerFukaDetail) ? `（${s.outriggerFukaDetail}）` : '';
+    drawTextBox(page, font, outriggerDetailText, { ...boxFrom(SAFETY_LABELS.outriggerFukaDetail), fontSizePt: 7 });
     function markChecked(key, selected) {
       const opts = CHECKBOXES[key];
       const sel = Array.isArray(selected) ? selected : (selected ? [selected] : []);

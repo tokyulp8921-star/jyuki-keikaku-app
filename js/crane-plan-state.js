@@ -12,7 +12,7 @@ const CranePlanState = (() => {
 
   function newWork() {
     return {
-      yoteiJikan: '', shiyoGyosha: '', basho: '', naiyo: '',
+      yoteiJikanStart: '', yoteiJikanEnd: '', shiyoGyosha: '', basho: '', naiyo: '',
       choKaJuryo: '', sagyoHankei: '',
       slingKei: '', slingNagasa: '', slingHon: '',
       sekininsha: '', tamakakesha: '', aizusha: '',
@@ -22,7 +22,7 @@ const CranePlanState = (() => {
   function newSafety() {
     return {
       aizuHoho: [], chikei: '', jibanKyodo: '', jibanYojo: [],
-      outriggerJotai: '', creneShui: [], tsuriniKabu: [], kakusenKinsetsu: [],
+      outriggerJotai: '', outriggerFukaDetail: '', creneShui: [], tsuriniKabu: [], kakusenKinsetsu: [],
     };
   }
 

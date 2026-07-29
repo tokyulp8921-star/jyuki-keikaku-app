@@ -17,7 +17,7 @@ const CranePdfCoords = (() => {
 
   // 作業計画(107-118): 単一値(列①のみ使用)
   const WORK = {
-    yoteiJikan: { x: 190, top: 256.8, width: 120, height: 12 },
+    yoteiJikan: { x: 190, top: 256.8, width: 120, height: 22 },
     shiyoGyosha: { x: 190, top: 284.2, width: 120, height: 12 },
     basho: { x: 190, top: 309.0, width: 120, height: 12 },
     naiyo: { x: 190, top: 339.8, width: 120, height: 12 },
@@ -41,6 +41,7 @@ const CranePdfCoords = (() => {
     creneShui: { x: 238.1, top: 562.2, width: 30, height: 8 },
     tsuriniKabu: { x: 238.1, top: 581.8, width: 30, height: 8 },
     kakusenKinsetsu: { x: 238.1, top: 606.1, width: 30, height: 8 },
+    outriggerFukaDetail: { x: 380, top: 537.5, width: 190, height: 9 }, // 「不可：対策」選択時の詳細内容
   };
 
   // チェックボックス選択肢位置(□グリフ中心。マーク描画に使用)
