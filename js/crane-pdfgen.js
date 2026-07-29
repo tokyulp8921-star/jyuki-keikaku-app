@@ -195,7 +195,26 @@ const CranePdfGen = (() => {
     drawTextBox(page, font, h.sagyobi, { ...boxFrom(HEADER.sagyobi), fontSizePt: 8 });
     drawTextBox(page, font, h.gyoshamei, { ...boxFrom(HEADER.gyoshamei), fontSizePt: 8 });
     drawTextBox(page, font, h.gyoshamei, { ...boxFrom(HEADER.gyoshamei_dup), fontSizePt: 8 });
-    drawTextBox(page, font, h.kishuSeino, { ...boxFrom(HEADER.kishuSeino), fontSizePt: 7.5 });
+    // 機種・性能(104): 登録数(1〜3)に応じて枠内を均等分割し、それぞれの機種・トン数を描く
+    {
+      const box = HEADER.kishuSeino;
+      const n = h.craneCount || 1;
+      const segWidth = box.width / n;
+      const craneTypes = h.craneTypes || [];
+      for (let i = 0; i < n; i++) {
+        drawTextBox(page, font, craneTypes[i] || '', {
+          x: box.x + segWidth * i, top: box.top, width: segWidth - (i < n - 1 ? 3 : 0), height: box.height, fontSizePt: 7.5,
+        });
+      }
+      if (n > 1) {
+        const y0 = PAGE_H - box.top;
+        const y1 = PAGE_H - box.top - box.height;
+        for (let i = 1; i < n; i++) {
+          const lineX = box.x + segWidth * i;
+          page.drawLine({ start: { x: lineX, y: y0 }, end: { x: lineX, y: y1 }, thickness: 0.6, color: PDFLib.rgb(0, 0, 0) });
+        }
+      }
+    }
     drawTextBox(page, font, h.craneGyosha, { ...boxFrom(HEADER.craneGyosha), fontSizePt: 7.5 });
     drawTextBox(page, font, h.untenshaMei, { ...boxFrom(HEADER.untenshaMei), fontSizePt: 7.5 });
 

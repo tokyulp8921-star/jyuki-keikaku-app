@@ -1,14 +1,22 @@
-// クレーン計画書ウィザードエンジン: ヘッダー→吊り荷計画(繰り返し,最大3)→画像挿入→保存
+// クレーン計画書ウィザードエンジン:
+// ヘッダー1(業者名・打合日)→登録機種数→機種1台目→ヘッダー2(クレーン業者〜安全チェック)
+// →(機種2・3台目、登録数が2以上の場合)→ヘッダー3(元請担当者確認欄)→吊り荷計画(繰り返し,最大3)→画像挿入→保存
 const CraneWizard = (() => {
   let root = null;
   let plan = null;
-  let phase = 'header'; // header | lift | confirmNextLift | image | confirmName | saving | done
+  // header1 | craneCount | craneType | craneTonnage | header2 | header3 | lift | confirmNextLift | image | confirmName | saving | done
+  let phase = 'header1';
   let stepIdx = 0;
   let liftIndex = 0;
+  let craneTypeIndex = 0;
   let master = null;
   let lastError = '';
   let forceFreshState = false;
   let reuseMode = false; // 再利用時: 入力2(打合日・作業日)だけ確認させ、完了後は保存前確認へ直行する
+
+  const HEADER2_OFFSET = 2; // CraneHeaderStepsの中でヘッダー2(c3〜c9)が始まるindex
+  const HEADER2_LEN = 7; // c3,c4,c5,c6,c7,c8,c9
+  const HEADER3_INDEX = 9; // c10
 
   function ctxBase() {
     return {
@@ -22,31 +30,95 @@ const CraneWizard = (() => {
     };
   }
 
-  function totalHeaderSteps() { return CraneHeaderSteps.length; }
   function totalLiftSteps() { return CraneLiftSteps.length; }
 
-  function saveDraftNow() { Storage.saveCraneDraft({ plan, phase, stepIdx, liftIndex }); }
+  function saveDraftNow() { Storage.saveCraneDraft({ plan, phase, stepIdx, liftIndex, craneTypeIndex }); }
 
   function renderCurrent() {
     root.innerHTML = '';
     saveDraftNow();
-    if (phase === 'header') {
-      if (reuseMode && stepIdx > 1) { reuseMode = false; phase = 'confirmName'; return renderCurrent(); }
-      if (stepIdx >= totalHeaderSteps()) { phase = 'lift'; stepIdx = 0; return renderCurrent(); }
-      UI.progress(root, stepIdx + 1, totalHeaderSteps() + totalLiftSteps(), `共通情報 ${stepIdx + 1}/${totalHeaderSteps()}`);
+
+    if (phase === 'header1') {
+      if (reuseMode && stepIdx >= 2) { reuseMode = false; phase = 'confirmName'; return renderCurrent(); }
+      if (stepIdx >= 2) { phase = 'craneCount'; stepIdx = 0; return renderCurrent(); }
+      UI.progress(root, stepIdx + 1, 12, `共通情報 ${stepIdx + 1}/2`);
       const ctx = ctxBase();
       ctx.goBack = stepIdx > 0 ? () => { stepIdx--; renderCurrent(); } : null;
       CraneHeaderSteps[stepIdx].render(root, ctx);
       return;
     }
-    if (phase === 'lift') {
-      if (stepIdx >= totalLiftSteps()) { phase = 'confirmNextLift'; return renderCurrent(); }
-      UI.progress(root, totalHeaderSteps() + stepIdx + 1, totalHeaderSteps() + totalLiftSteps(),
-        `吊り荷計画${liftIndex + 1}の入力 ${stepIdx + 1}/${totalLiftSteps()}`);
+    if (phase === 'craneCount') {
+      UI.progress(root, 3, 12, '登録するクレーンの機種数');
+      const ctx = {
+        plan,
+        goNext: () => { craneTypeIndex = 0; phase = 'craneType'; renderCurrent(); },
+        goBack: () => { phase = 'header1'; stepIdx = 1; renderCurrent(); },
+      };
+      CraneTypeSteps.renderCount(root, ctx);
+      return;
+    }
+    if (phase === 'craneType') {
+      UI.progress(root, 4, 12, `機種・性能（${craneTypeIndex + 1}台目）`);
+      const ctx = {
+        plan, craneTypeIndex,
+        goNext: () => { phase = 'craneTonnage'; renderCurrent(); },
+        goBack: () => {
+          if (craneTypeIndex === 0) { phase = 'craneCount'; renderCurrent(); }
+          else { UI.toast('これ以上戻れません'); }
+        },
+      };
+      CraneTypeSteps.renderType(root, ctx);
+      return;
+    }
+    if (phase === 'craneTonnage') {
+      UI.progress(root, 5, 12, `トン数（${craneTypeIndex + 1}台目）`);
+      const ctx = {
+        plan, craneTypeIndex,
+        goNext: () => {
+          if (craneTypeIndex === 0) { phase = 'header2'; stepIdx = 0; renderCurrent(); }
+          else {
+            craneTypeIndex++;
+            if (craneTypeIndex < plan.header.craneCount) { phase = 'craneType'; renderCurrent(); }
+            else { phase = 'header3'; stepIdx = 0; renderCurrent(); }
+          }
+        },
+        goBack: () => { phase = 'craneType'; renderCurrent(); },
+      };
+      CraneTypeSteps.renderTonnage(root, ctx);
+      return;
+    }
+    if (phase === 'header2') {
+      if (stepIdx >= HEADER2_LEN) {
+        if (plan.header.craneCount > 1) { craneTypeIndex = 1; phase = 'craneType'; return renderCurrent(); }
+        phase = 'header3'; stepIdx = 0; return renderCurrent();
+      }
+      UI.progress(root, 6 + stepIdx, 12, `共通情報 ${stepIdx + 1}/${HEADER2_LEN}`);
       const ctx = ctxBase();
       ctx.goBack = () => {
         if (stepIdx > 0) { stepIdx--; renderCurrent(); }
-        else if (liftIndex === 0) { phase = 'header'; stepIdx = totalHeaderSteps() - 1; renderCurrent(); }
+        else { phase = 'craneTonnage'; craneTypeIndex = 0; renderCurrent(); }
+      };
+      CraneHeaderSteps[HEADER2_OFFSET + stepIdx].render(root, ctx);
+      return;
+    }
+    if (phase === 'header3') {
+      if (stepIdx >= 1) { phase = 'lift'; stepIdx = 0; return renderCurrent(); }
+      UI.progress(root, 11, 12, '元請担当者確認欄');
+      const ctx = ctxBase();
+      ctx.goBack = () => {
+        if (plan.header.craneCount > 1) { phase = 'craneTonnage'; craneTypeIndex = plan.header.craneCount - 1; renderCurrent(); }
+        else { phase = 'header2'; stepIdx = HEADER2_LEN - 1; renderCurrent(); }
+      };
+      CraneHeaderSteps[HEADER3_INDEX].render(root, ctx);
+      return;
+    }
+    if (phase === 'lift') {
+      if (stepIdx >= totalLiftSteps()) { phase = 'confirmNextLift'; return renderCurrent(); }
+      UI.progress(root, 12, 12 + totalLiftSteps(), `吊り荷計画${liftIndex + 1}の入力 ${stepIdx + 1}/${totalLiftSteps()}`);
+      const ctx = ctxBase();
+      ctx.goBack = () => {
+        if (stepIdx > 0) { stepIdx--; renderCurrent(); }
+        else if (liftIndex === 0) { phase = 'header3'; stepIdx = 0; renderCurrent(); }
         else { UI.toast('これ以上戻れません'); }
       };
       CraneLiftSteps[stepIdx].render(root, ctx);
@@ -253,6 +325,7 @@ const CraneWizard = (() => {
     const draft = Storage.loadCraneDraft();
     if (draft && draft.plan) {
       plan = draft.plan; phase = draft.phase; stepIdx = draft.stepIdx; liftIndex = draft.liftIndex || 0;
+      craneTypeIndex = draft.craneTypeIndex || 0;
     } else {
       startNew();
       return;
@@ -262,7 +335,7 @@ const CraneWizard = (() => {
 
   function startNew() {
     plan = CranePlanState.newPlan();
-    phase = 'header'; stepIdx = 0; liftIndex = 0;
+    phase = 'header1'; stepIdx = 0; liftIndex = 0; craneTypeIndex = 0;
     reuseMode = false;
     forceFreshState = true;
     if (root) renderCurrent();
@@ -280,7 +353,7 @@ const CraneWizard = (() => {
     plan.header.uchiawaseDate = today;
     plan.header.sagyobi = Holidays.nextBusinessDayAfter(today);
     liftIndex = Math.max(0, plan.lifts.length - 1);
-    phase = 'header'; stepIdx = 1; // c2(打合日・作業日)から開始
+    phase = 'header1'; stepIdx = 1; // c2(打合日・作業日)から開始
     reuseMode = true;
     forceFreshState = true;
     if (root) renderCurrent();

@@ -4,7 +4,9 @@ const CranePlanState = (() => {
 
   function newHeader() {
     return {
-      uchiawaseDate: '', sagyobi: '', gyoshamei: '', kishuSeino: '', craneGyosha: '', untenshaMei: '',
+      uchiawaseDate: '', sagyobi: '', gyoshamei: '',
+      craneCount: null, craneTypes: ['', '', ''], // 入力104: 機種・性能(登録数に応じて枠内を分割)
+      craneGyosha: '', untenshaMei: '',
     };
   }
 

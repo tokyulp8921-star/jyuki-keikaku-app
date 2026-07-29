@@ -22,10 +22,9 @@ const CraneHeaderSteps = (() => {
         container.appendChild(c);
         nextBar(container, { onBack: ctx.goBack, onNext: () => { if (!ctx.plan.header.uchiawaseDate) return toast('打合日を入力してください'); ctx.goNext(); } });
       } },
-    { id: 'c3', title: '機種・性能・クレーン業者・運転者名',
+    { id: 'c3', title: 'クレーン業者・運転者名',
       render(container, ctx) {
-        const c = card('機種・性能・クレーン業者・運転者名');
-        textField(c, { label: '機種・性能', value: ctx.plan.header.kishuSeino, onChange: (v) => { ctx.plan.header.kishuSeino = v; } });
+        const c = card('クレーン業者・運転者名');
         selectField(c, { label: 'クレーン業者（プルダウン）', value: ctx.plan.header.craneGyosha, options: ctx.master.contractors, onChange: (v) => { ctx.plan.header.craneGyosha = v; } });
         textField(c, { label: '運転者名', value: ctx.plan.header.untenshaMei, onChange: (v) => { ctx.plan.header.untenshaMei = v; } });
         container.appendChild(c);
@@ -111,7 +110,7 @@ const CraneHeaderSteps = (() => {
 
 // 吊り荷計画(作業予定①②③、最大3回繰り返し)のステップ定義
 const CraneLiftSteps = (() => {
-  const { card, textField, chipGroup, nextBar } = UI;
+  const { card, textField, chipGroup, nextBar, field, el } = UI;
 
   const steps = [
     { id: 'l1', title: '吊り荷名称・必要な作業半径・高さ',
@@ -145,11 +144,27 @@ const CraneLiftSteps = (() => {
     { id: 'l4', title: '定格総荷重・フック等重量・定格荷重',
       render(container, ctx) {
         const l = ctx.lift;
-        const c = card('作業半径時の定格総荷重・フック等重量・定格荷重');
-        textField(c, { label: '作業半径時の定格総荷重 (ton)', value: l.teikakuSokaJu, onChange: (v) => { l.teikakuSokaJu = v; } });
-        textField(c, { label: 'フック等重量 (ton)', value: l.hookJuryo, onChange: (v) => { l.hookJuryo = v; } });
-        textField(c, { label: '作業半径時の定格荷重 (ton)', value: l.teikakuKaJu, onChange: (v) => { l.teikakuKaJu = v; } });
-        textField(c, { label: '定格荷重×90% (ton)', value: l.teikaku90, onChange: (v) => { l.teikaku90 = v; } });
+        const c = card('作業半径時の定格総荷重・フック等重量・定格荷重', '定格荷重は「定格総荷重-フック等重量」で自動計算されます');
+        textField(c, { label: '作業半径時の定格総荷重 (ton)', value: l.teikakuSokaJu, onChange: (v) => { l.teikakuSokaJu = v; recalc(); } });
+        textField(c, { label: 'フック等重量 (ton)', value: l.hookJuryo, onChange: (v) => { l.hookJuryo = v; recalc(); } });
+        const calcField = field(c, '作業半径時の定格荷重 (ton)（自動計算）');
+        const calcDisplay = el('div', { style: 'padding:10px 12px;background:#f0f0f0;border-radius:8px;font-size:15px;min-height:20px;' });
+        calcField.appendChild(calcDisplay);
+        const calc90Field = field(c, '定格荷重×90% (ton)（自動計算）');
+        const calc90Display = el('div', { style: 'padding:10px 12px;background:#f0f0f0;border-radius:8px;font-size:15px;min-height:20px;' });
+        calc90Field.appendChild(calc90Display);
+        function recalc() {
+          const a = parseFloat(l.teikakuSokaJu);
+          const b = parseFloat(l.hookJuryo);
+          if (!isNaN(a) && !isNaN(b)) l.teikakuKaJu = String(Math.round((a - b) * 100) / 100);
+          else l.teikakuKaJu = '';
+          calcDisplay.textContent = l.teikakuKaJu || '（総荷重・フック等重量を入力すると自動計算されます）';
+          const c138 = parseFloat(l.teikakuKaJu);
+          if (!isNaN(c138)) l.teikaku90 = String(Math.round(c138 * 0.9 * 100) / 100);
+          else l.teikaku90 = '';
+          calc90Display.textContent = l.teikaku90 || '（定格荷重が確定すると自動計算されます）';
+        }
+        recalc();
         container.appendChild(c);
         nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
       } },
@@ -183,4 +198,86 @@ const CraneLiftSteps = (() => {
       } },
   ];
   return steps;
+})();
+
+// 入力104(機種・性能)の登録数・機種・トン数を尋ねるステップ群。
+// CraneHeaderSteps/CraneLiftStepsとは別に、crane-wizard.jsからフェーズ制御で直接呼び出す。
+const CraneTypeSteps = (() => {
+  const { card, chipGroup, textField, nextBar, toast, el } = UI;
+  const CRANE_TYPE_OPTIONS = ['油圧式TC', 'ｸﾛｰﾗｰC', '車両車載C', '機械式TC', 'ｸﾛｰﾗｰﾀﾜｰC', 'その他'];
+
+  function renderCount(container, ctx) {
+    const c = card('登録するクレーンの機種数', '入力104(機種・性能)の枠を、登録する数に応じて分割します。');
+    chipGroup(c, {
+      label: '登録する数', value: ctx.plan.header.craneCount ? String(ctx.plan.header.craneCount) : '',
+      options: ['1', '2', '3'],
+      onChange: (v) => {
+        const n = Number(v);
+        ctx.plan.header.craneCount = n;
+        const kept = ctx.plan.header.craneTypes || ['', '', ''];
+        ctx.plan.header.craneTypes = [kept[0] || '', kept[1] || '', kept[2] || ''];
+      },
+    });
+    container.appendChild(c);
+    nextBar(container, {
+      onBack: ctx.goBack,
+      onNext: () => { if (!ctx.plan.header.craneCount) return toast('登録する数を選択してください'); ctx.goNext(); },
+    });
+  }
+
+  function renderType(container, ctx) {
+    const idx = ctx.craneTypeIndex;
+    const presets = CRANE_TYPE_OPTIONS.slice(0, -1); // 'その他'を除く5種
+    let current = ctx.plan.header.craneTypes[idx] || '';
+    let otherSelected = current !== '' && !presets.includes(current);
+    const c = card(`機種・性能（${idx + 1}台目）`, '一覧から選択してください（該当がなければ「その他」を選び、自由入力できます）');
+    const otherWrap = el('div', {});
+    function renderOtherField() {
+      otherWrap.innerHTML = '';
+      if (otherSelected) {
+        textField({ _body: otherWrap }, {
+          label: '機種（自由入力）', value: presets.includes(current) ? '' : current,
+          placeholder: '（例）0.7BH',
+          onChange: (v) => { current = v; ctx.plan.header.craneTypes[idx] = v; },
+        });
+      }
+    }
+    chipGroup(c, {
+      label: '機種', value: presets.includes(current) ? current : (otherSelected ? 'その他' : ''), options: CRANE_TYPE_OPTIONS,
+      onChange: (v) => {
+        if (v === 'その他') { otherSelected = true; current = ''; ctx.plan.header.craneTypes[idx] = ''; }
+        else { otherSelected = false; current = v; ctx.plan.header.craneTypes[idx] = v; }
+        renderOtherField();
+      },
+    });
+    c._body.appendChild(otherWrap);
+    renderOtherField();
+    container.appendChild(c);
+    nextBar(container, {
+      onBack: ctx.goBack,
+      onNext: () => {
+        if (!ctx.plan.header.craneTypes[idx]) return toast('機種を選択（または入力）してください');
+        ctx.goNext();
+      },
+    });
+  }
+
+  function renderTonnage(container, ctx) {
+    const idx = ctx.craneTypeIndex;
+    const label = ctx.plan.header.craneTypes[idx] || '';
+    const c = card(`何トン吊りですか？（${idx + 1}台目: ${label}）`);
+    let tonnage = '';
+    textField(c, { label: 'トン数', type: 'number', value: '', onChange: (v) => { tonnage = v; } });
+    container.appendChild(c);
+    nextBar(container, {
+      onBack: ctx.goBack,
+      onNext: () => {
+        if (!tonnage) return toast('トン数を入力してください');
+        ctx.plan.header.craneTypes[idx] = `${label} ${tonnage}吊`;
+        ctx.goNext();
+      },
+    });
+  }
+
+  return { CRANE_TYPE_OPTIONS, renderCount, renderType, renderTonnage };
 })();
