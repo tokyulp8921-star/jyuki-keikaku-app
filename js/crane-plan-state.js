@@ -22,7 +22,8 @@ const CranePlanState = (() => {
   function newSafety() {
     return {
       aizuHoho: [], chikei: '', jibanKyodo: '', jibanYojo: [],
-      outriggerJotai: '', outriggerFukaDetail: '', creneShui: [], tsuriniKabu: [], kakusenKinsetsu: [],
+      outriggerJotai: '', outriggerFukaDetail: '', creneShui: [], tsuriniKabu: [],
+      kakusenKinsetsu: { has: null, hogo: [], hogoOther: '' },
     };
   }
 
@@ -46,7 +47,7 @@ const CranePlanState = (() => {
       work: newWork(),
       safety: newSafety(),
       lifts: [newLift()],
-      tantosha127: '', kyoryokuKakuninsha128: '',
+      tantosha127: ['', '', ''], kyoryokuKakuninsha128: '',
       image: { dataUrl: '', rect: null },
       savedFileName: '',
       createdAt: Date.now(),

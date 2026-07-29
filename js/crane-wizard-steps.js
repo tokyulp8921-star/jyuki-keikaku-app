@@ -150,14 +150,44 @@ const CraneHeaderSteps = (() => {
         chipGroup(c2, { label: '吊荷下部（複数選択可）', value: s.tsuriniKabu, multi: true, options: ['誘導員', '声', '笛', 'ブザー', 'カラーコーン', 'ロープ'], onChange: (v) => { s.tsuriniKabu = v; } });
         container.appendChild(c2);
         const c3 = card('架空線近接');
-        chipGroup(c3, { label: '架空線近接（複数選択可）', value: s.kakusenKinsetsu, multi: true, options: ['有:対策', '移設', '絶縁用防具', '監視員', 'その他', '無'], onChange: (v) => { s.kakusenKinsetsu = v; } });
+        chipGroup(c3, {
+          label: '架空線近接', value: s.kakusenKinsetsu.has === true ? '有' : (s.kakusenKinsetsu.has === false ? '無' : ''), options: ['有', '無'],
+          onChange: (v) => { s.kakusenKinsetsu.has = v === '有'; renderKakusenSub(); },
+        });
+        const kakusenWrap = el('div', {});
+        c3._body.appendChild(kakusenWrap);
+        function renderKakusenSub() {
+          kakusenWrap.innerHTML = '';
+          if (!s.kakusenKinsetsu.has) return;
+          chipGroup({ _body: kakusenWrap }, {
+            label: '対策（複数選択可）', value: s.kakusenKinsetsu.hogo, multi: true, options: ['移設', '絶縁用防具', '監視員', 'その他'],
+            onChange: (v) => { s.kakusenKinsetsu.hogo = v; renderKakusenOther(); },
+          });
+          const otherWrap = el('div', {});
+          kakusenWrap.appendChild(otherWrap);
+          function renderKakusenOther() {
+            otherWrap.innerHTML = '';
+            if (s.kakusenKinsetsu.hogo.includes('その他')) {
+              textField({ _body: otherWrap }, { label: 'その他（内容）', value: s.kakusenKinsetsu.hogoOther, onChange: (v) => { s.kakusenKinsetsu.hogoOther = v; } });
+            }
+          }
+          renderKakusenOther();
+        }
+        renderKakusenSub();
         container.appendChild(c3);
         nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
       } },
     { id: 'c10', title: '元請担当者確認欄',
       render(container, ctx) {
-        const c = card('元請担当者確認欄');
-        selectField(c, { label: '担当者（プルダウン）', value: ctx.plan.tantosha127, options: MasterData.staffNames(), onChange: (v) => { ctx.plan.tantosha127 = v; } });
+        const c = card('元請担当者確認欄', '最大3名まで選択できます');
+        const selected127 = ctx.plan.tantosha127.filter((x) => x);
+        chipGroup(c, {
+          label: '担当者（複数選択可・最大3名）', value: selected127, multi: true, options: MasterData.staffNames(),
+          onChange: (v) => {
+            if (v.length > 3) v.splice(3);
+            ctx.plan.tantosha127 = [v[0] || '', v[1] || '', v[2] || ''];
+          },
+        });
         textField(c, { label: '協力会社確認者', value: ctx.plan.kyoryokuKakuninsha128, onChange: (v) => { ctx.plan.kyoryokuKakuninsha128 = v; } });
         container.appendChild(c);
         nextBar(container, { onBack: ctx.goBack, nextLabel: '吊り荷計画の入力へ', onNext: () => ctx.goNext() });

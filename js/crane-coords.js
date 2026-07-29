@@ -42,6 +42,7 @@ const CranePdfCoords = (() => {
     tsuriniKabu: { x: 238.1, top: 581.8, width: 30, height: 8 },
     kakusenKinsetsu: { x: 238.1, top: 606.1, width: 30, height: 8 },
     outriggerFukaDetail: { x: 380, top: 537.5, width: 190, height: 9 }, // 「不可：対策」選択時の詳細内容
+    kakusenOtherDetail: { x: 400, top: 606.5, width: 170, height: 9 }, // 架空線近接「その他」選択時の詳細内容
   };
 
   // チェックボックス選択肢位置(□グリフ中心。マーク描画に使用)
@@ -78,8 +79,8 @@ const CranePdfCoords = (() => {
 
   // 元請担当者確認欄(127・128)
   const CONFIRM = {
-    tantosha127: { x: 238.1, top: 640.2, width: 100, height: 10 },
-    tantosha127_dup: { x: 509.0, top: 695.8, width: 100, height: 10 },
+    tantosha127: { x: 238.1, top: 640.2, width: 100, height: 18 },
+    tantosha127_dup: { x: 509.0, top: 695.8, width: 100, height: 18 },
     kyoryokuKakuninsha128: { x: 397.8, top: 778.4, width: 90, height: 10 },
   };
 

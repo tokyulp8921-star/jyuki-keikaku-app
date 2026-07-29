@@ -240,13 +240,17 @@ const CranePdfGen = (() => {
 
     // 安全チェック(119-126): ラベル位置は白塗りのみ、値はチェックボックスへのマークで表現
     const s = plan.safety;
+    const DETAIL_KEYS = ['outriggerFukaDetail', 'kakusenOtherDetail'];
     Object.keys(SAFETY_LABELS).forEach((key) => {
-      if (key === 'outriggerFukaDetail') return;
+      if (DETAIL_KEYS.includes(key)) return;
       drawTextBox(page, font, '', boxFrom(SAFETY_LABELS[key]));
     });
     // アウトリガー最大張出「不可：対策」選択時の詳細内容
     const outriggerDetailText = (s.outriggerJotai === '不可:対策' && s.outriggerFukaDetail) ? `（${s.outriggerFukaDetail}）` : '';
     drawTextBox(page, font, outriggerDetailText, { ...boxFrom(SAFETY_LABELS.outriggerFukaDetail), fontSizePt: 7 });
+    // 架空線近接「その他」選択時の詳細内容
+    const kakusenOtherText = (s.kakusenKinsetsu.hogo || []).includes('その他') && s.kakusenKinsetsu.hogoOther ? `（${s.kakusenKinsetsu.hogoOther}）` : '';
+    drawTextBox(page, font, kakusenOtherText, { ...boxFrom(SAFETY_LABELS.kakusenOtherDetail), fontSizePt: 7 });
     function markChecked(key, selected) {
       const opts = CHECKBOXES[key];
       const sel = Array.isArray(selected) ? selected : (selected ? [selected] : []);
@@ -259,11 +263,17 @@ const CranePdfGen = (() => {
     markChecked('outriggerJotai', s.outriggerJotai);
     markChecked('creneShui', s.creneShui);
     markChecked('tsuriniKabu', s.tsuriniKabu);
-    markChecked('kakusenKinsetsu', s.kakusenKinsetsu);
+    {
+      const sel = [];
+      if (s.kakusenKinsetsu.has === true) { sel.push('有:対策'); sel.push(...(s.kakusenKinsetsu.hogo || [])); }
+      else if (s.kakusenKinsetsu.has === false) { sel.push('無'); }
+      markChecked('kakusenKinsetsu', sel);
+    }
 
-    // 元請担当者確認欄(127・128)
-    drawTextBox(page, font, plan.tantosha127, { ...boxFrom(CONFIRM.tantosha127), fontSizePt: 7 });
-    drawTextBox(page, font, plan.tantosha127, { ...boxFrom(CONFIRM.tantosha127_dup), fontSizePt: 7 });
+    // 元請担当者確認欄(127・128、最大3名)
+    const tantosha127Text = (Array.isArray(plan.tantosha127) ? plan.tantosha127 : [plan.tantosha127]).filter(Boolean).join('・');
+    drawTextBox(page, font, tantosha127Text, { ...boxFrom(CONFIRM.tantosha127), fontSizePt: 7 });
+    drawTextBox(page, font, tantosha127Text, { ...boxFrom(CONFIRM.tantosha127_dup), fontSizePt: 7 });
     drawTextBox(page, font, plan.kyoryokuKakuninsha128, { ...boxFrom(CONFIRM.kyoryokuKakuninsha128), fontSizePt: 7 });
 
     // 吊り荷計画(129-144、作業予定①②③、最大3回)

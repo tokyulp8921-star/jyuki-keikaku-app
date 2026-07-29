@@ -282,7 +282,7 @@ const CraneWizard = (() => {
       }
       Storage.addPdfIndexEntry({
         fileName, createdAt: Date.now(), gyoshamei: plan.header.gyoshamei, sagyobi: plan.header.sagyobi,
-        tantosha6: plan.tantosha127 || '',
+        tantosha6: (plan.tantosha127 && plan.tantosha127[0]) || '',
         docType: 'crane',
         dropboxPath, hasLocal,
       });
