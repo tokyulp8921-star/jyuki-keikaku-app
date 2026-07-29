@@ -25,6 +25,10 @@ const HeaderSteps = (() => {
     { // 入力2 打合せ日時 → 入力4 自動計算
       id: 'h2', title: '打合せ日時',
       render(container, ctx) {
+        if (!ctx.plan.header.uchiawaseDate) {
+          ctx.plan.header.uchiawaseDate = Holidays.fmt(new Date());
+          ctx.plan.header.sagyobi = Holidays.nextBusinessDayAfter(ctx.plan.header.uchiawaseDate);
+        }
         const c = card('入力2: 打合せ日時');
         textField(c, {
           label: '打合せ日（カレンダーから選択可）', type: 'date', value: ctx.plan.header.uchiawaseDate,

@@ -12,6 +12,10 @@ const CraneHeaderSteps = (() => {
       } },
     { id: 'c2', title: '打合日・作業日',
       render(container, ctx) {
+        if (!ctx.plan.header.uchiawaseDate) {
+          ctx.plan.header.uchiawaseDate = Holidays.fmt(new Date());
+          ctx.plan.header.sagyobi = Holidays.nextBusinessDayAfter(ctx.plan.header.uchiawaseDate);
+        }
         const c = card('打合日・作業日');
         textField(c, { label: '打合日（カレンダーから選択可）', type: 'date', value: ctx.plan.header.uchiawaseDate, onChange: (v) => { ctx.plan.header.uchiawaseDate = v; ctx.plan.header.sagyobi = Holidays.nextBusinessDayAfter(v); } });
         textField(c, { label: '作業日（自動計算・カレンダーで変更可）', type: 'date', value: ctx.plan.header.sagyobi, onChange: (v) => { ctx.plan.header.sagyobi = v; } });
