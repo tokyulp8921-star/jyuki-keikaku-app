@@ -267,6 +267,38 @@ const MasterAdmin = (() => {
     container.appendChild(c);
   }
 
+  function driverEditor(container) {
+    const master = MasterData.get();
+    const c = UI.el('div', { class: 'card' });
+    c.appendChild(UI.el('div', { class: 'card-title', text: '運転者候補（所有者ごと）' }));
+    const body = UI.el('div', {});
+    c.appendChild(body);
+    function renderTree() {
+      body.innerHTML = '';
+      (master.owners || []).forEach((owner) => {
+        const row = UI.el('div', { class: 'field' });
+        row.appendChild(UI.el('div', { class: 'field-label', text: owner }));
+        (master.driversByOwner[owner] || []).forEach((name) => {
+          const r = UI.el('div', { style: 'display:flex;align-items:center;justify-content:space-between;margin:2px 0 2px 16px;' });
+          r.appendChild(UI.el('div', { text: '└ ' + name }));
+          const del = UI.el('button', { class: 'btn btn-danger', style: 'padding:4px 8px;font-size:11px;', text: '削除' });
+          del.addEventListener('click', () => { MasterData.removeDriver(owner, name); renderTree(); });
+          r.appendChild(del);
+          row.appendChild(r);
+        });
+        const addRow = UI.el('div', { style: 'display:flex;gap:8px;margin:6px 0 0 16px;' });
+        const input = UI.el('input', { type: 'text', placeholder: `${owner}の運転者候補を追加` });
+        const addBtn = UI.el('button', { class: 'btn btn-primary', text: '追加' });
+        addBtn.addEventListener('click', () => { if (input.value.trim()) { MasterData.addDriver(owner, input.value.trim()); input.value = ''; renderTree(); } });
+        addRow.appendChild(input); addRow.appendChild(addBtn);
+        row.appendChild(addRow);
+        body.appendChild(row);
+      });
+    }
+    renderTree();
+    container.appendChild(c);
+  }
+
   function staffEditor(container) {
     const master = MasterData.get();
     const c = UI.el('div', { class: 'card' });
@@ -321,8 +353,9 @@ const MasterAdmin = (() => {
     if (activeCat === 'machines') machineEditor(root);
     else if (activeCat === 'secondTier') secondTierEditor(root);
     else if (activeCat === 'staff') staffEditor(root);
+    else if (activeCat === 'drivers') driverEditor(root);
     else {
-      const map = { contractors: '業者名', owners: '所有者', locations: '使用場所', drivers: '運転者候補' };
+      const map = { contractors: '業者名', owners: '所有者', locations: '使用場所' };
       simpleListEditor(root, activeCat, map[activeCat]);
     }
   }

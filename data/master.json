@@ -1,57 +1,203 @@
 {
-  "contractors": [
-    "岸本建設", "世紀東急工業", "卯月林業", "SRK", "斎藤組", "あすか創建",
-    "内田緑化興業", "丸藤ｼｰﾄﾊﾟｲﾙ", "オズモ", "ダイセキ環境", "郡リース",
-    "測成社", "千年水道", "信成土木", "技研施工", "東急ｸﾞﾘｰﾝ",
-    "ｺﾝｸﾘｰﾄｺｰﾘﾝｸﾞ", "三河技研", "日本コンクリート", "タケエイ", "ﾀｹｴｲ・SRK", "搬入業者"
-  ],
-  "staff": [
-    { "name": "山田 常久", "email": "yamada.tsunehisa@tokyu-cnst.co.jp" },
-    { "name": "石澤 慎司", "email": "ishizawa.shinji@tokyu-cnst.co.jp" },
-    { "name": "田中 真奈美", "email": "tanaka.manami@tokyu-cnst.co.jp" },
-    { "name": "山本 瞳瑠", "email": "yamamoto.meru@tokyu-cnst.co.jp" },
-    { "name": "城戸 いちご", "email": "kido.ichigo@tokyu-cnst.co.jp" },
-    { "name": "藤田 孝", "email": "fujita.takashi@tokyu-cnst.co.jp" },
-    { "name": "大久保 響", "email": "ookubo.hibiki@tokyu-cnst.co.jp" },
-    { "name": "吉田 栞汰", "email": "yoshida.kanta@tokyu-cnst.co.jp" },
-    { "name": "池之内 秀一", "email": "ikenouchi.hidekazu@tokyu-cnst.co.jp" },
-    { "name": "服部 茜", "email": "hattori.akane@tokyu-cnst.co.jp" },
-    { "name": "浦部 克人", "email": "urabe.katsuhito@tokyu-cnst.co.jp" },
-    { "name": "吉田 竜太", "email": "yoshida.ryuuta@tokyu-cnst.co.jp" },
-    { "name": "小川 久美", "email": "ogawa.kumi@tokyu-cnst.co.jp" },
-    { "name": "笹淵 弘幸", "email": "sasabuchi.hiroyuki@tokyu-cnst.co.jp" },
-    { "name": "佐藤 裕", "email": "satou.yutaka@tokyu-cnst.co.jp" },
-    { "name": "篠原 理玖", "email": "shinohara.riku@tokyu-cnst.co.jp" },
-    { "name": "髙橋 蓮", "email": "takahashi.ren@tokyu-cnst.co.jp" },
-    { "name": "兼田 康平", "email": "kaneda.kouhei@tokyu-cnst.co.jp" },
-    { "name": "村田 定治", "email": "murata.teiji@tokyu-cnst.co.jp" },
-    { "name": "瀬崎 雅信", "email": "sezaki.masanobu@tokyu-cnst.co.jp" },
-    { "name": "高木 一", "email": "takaki.hajime@tokyu-cnst.co.jp" },
-    { "name": "柴田 俊也", "email": "shibata.shunya@tokyu-cnst.co.jp" }
-  ],
-  "secondTierByContractor": {
-    "岸本建設": [], "世紀東急工業": [], "卯月林業": [], "SRK": [], "斎藤組": [], "あすか創建": [],
-    "内田緑化興業": [], "丸藤ｼｰﾄﾊﾟｲﾙ": [], "オズモ": [], "ダイセキ環境": [], "郡リース": [],
-    "測成社": [], "千年水道": [], "信成土木": [], "技研施工": [], "東急ｸﾞﾘｰﾝ": [],
-    "ｺﾝｸﾘｰﾄｺｰﾘﾝｸﾞ": [], "三河技研": [], "日本コンクリート": [], "タケエイ": [], "ﾀｹｴｲ・SRK": [], "搬入業者": []
+ "contractors": [
+  "岸本建設",
+  "世紀東急工業",
+  "卯月林業",
+  "SRK",
+  "斎藤組",
+  "あすか創建",
+  "内田緑化興業",
+  "丸藤ｼｰﾄﾊﾟｲﾙ",
+  "オズモ",
+  "ダイセキ環境",
+  "郡リース",
+  "測成社",
+  "千年水道",
+  "信成土木",
+  "技研施工",
+  "東急ｸﾞﾘｰﾝ",
+  "ｺﾝｸﾘｰﾄｺｰﾘﾝｸﾞ",
+  "三河技研",
+  "日本コンクリート",
+  "タケエイ",
+  "ﾀｹｴｲ・SRK",
+  "搬入業者"
+ ],
+ "staff": [
+  {
+   "name": "山田 常久",
+   "email": "yamada.tsunehisa@tokyu-cnst.co.jp"
   },
-  "machineCategories": ["整地・運搬・積込み用機械", "掘削用機械", "締固め", "基礎工事", "コンクリート打設", "解体用"],
-  "machinesByCategory": {
-    "整地・運搬・積込み用機械": ["ブルド－ザ－", "モーターブレーダー", "ホイールローダー", "クローラーダンプ"],
-    "掘削用機械": ["油圧シャベル", "パワーシャベル"],
-    "締固め": [],
-    "基礎工事": ["杭打機・アースドリル"],
-    "コンクリート打設": ["コンクリートポンプ車", "ミキサー車"],
-    "解体用": ["解体用バックホウ", "ブレーカー装着機"]
+  {
+   "name": "石澤 慎司",
+   "email": "ishizawa.shinji@tokyu-cnst.co.jp"
   },
-  "owners": [
-    "西尾ﾚﾝﾄｵｰﾙ（東急建設貸与）", "アクティオ（東急建設貸与）", "SRK", "ﾀｹｴｲ・SRK", "搬入業者"
+  {
+   "name": "田中 真奈美",
+   "email": "tanaka.manami@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "山本 瞳瑠",
+   "email": "yamamoto.meru@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "城戸 いちご",
+   "email": "kido.ichigo@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "藤田 孝",
+   "email": "fujita.takashi@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "大久保 響",
+   "email": "ookubo.hibiki@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "吉田 栞汰",
+   "email": "yoshida.kanta@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "池之内 秀一",
+   "email": "ikenouchi.hidekazu@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "服部 茜",
+   "email": "hattori.akane@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "浦部 克人",
+   "email": "urabe.katsuhito@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "吉田 竜太",
+   "email": "yoshida.ryuuta@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "小川 久美",
+   "email": "ogawa.kumi@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "笹淵 弘幸",
+   "email": "sasabuchi.hiroyuki@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "佐藤 裕",
+   "email": "satou.yutaka@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "篠原 理玖",
+   "email": "shinohara.riku@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "髙橋 蓮",
+   "email": "takahashi.ren@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "兼田 康平",
+   "email": "kaneda.kouhei@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "村田 定治",
+   "email": "murata.teiji@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "瀬崎 雅信",
+   "email": "sezaki.masanobu@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "高木 一",
+   "email": "takaki.hajime@tokyu-cnst.co.jp"
+  },
+  {
+   "name": "柴田 俊也",
+   "email": "shibata.shunya@tokyu-cnst.co.jp"
+  }
+ ],
+ "secondTierByContractor": {
+  "岸本建設": [],
+  "世紀東急工業": [],
+  "卯月林業": [],
+  "SRK": [],
+  "斎藤組": [],
+  "あすか創建": [],
+  "内田緑化興業": [],
+  "丸藤ｼｰﾄﾊﾟｲﾙ": [],
+  "オズモ": [],
+  "ダイセキ環境": [],
+  "郡リース": [],
+  "測成社": [],
+  "千年水道": [],
+  "信成土木": [],
+  "技研施工": [],
+  "東急ｸﾞﾘｰﾝ": [],
+  "ｺﾝｸﾘｰﾄｺｰﾘﾝｸﾞ": [],
+  "三河技研": [],
+  "日本コンクリート": [],
+  "タケエイ": [],
+  "ﾀｹｴｲ・SRK": [],
+  "搬入業者": []
+ },
+ "machineCategories": [
+  "整地・運搬・積込み用機械",
+  "掘削用機械",
+  "締固め",
+  "基礎工事",
+  "コンクリート打設",
+  "解体用"
+ ],
+ "machinesByCategory": {
+  "整地・運搬・積込み用機械": [
+   "ブルド－ザ－",
+   "モーターブレーダー",
+   "ホイールローダー",
+   "クローラーダンプ"
   ],
-  "drivers": [],
-  "locations": [
-    "正面広場", "ふるさとの森", "ミュージアム前", "東側駐車場", "催し広場",
-    "野球場北側", "釣池", "事務所ヤード", "第1サッカー場", "外周道路",
-    "新設ﾃﾆｽｺｰﾄ", "釣池北西部", "21世紀の森", "旧ﾃﾆｽｺｰﾄ"
+  "掘削用機械": [
+   "油圧シャベル",
+   "パワーシャベル"
   ],
-  "updatedAt": null
+  "締固め": [],
+  "基礎工事": [
+   "杭打機・アースドリル"
+  ],
+  "コンクリート打設": [
+   "コンクリートポンプ車",
+   "ミキサー車"
+  ],
+  "解体用": [
+   "解体用バックホウ",
+   "ブレーカー装着機"
+  ]
+ },
+ "owners": [
+  "西尾ﾚﾝﾄｵｰﾙ（東急建設貸与）",
+  "アクティオ（東急建設貸与）",
+  "SRK",
+  "ﾀｹｴｲ・SRK",
+  "搬入業者"
+ ],
+ "locations": [
+  "正面広場",
+  "ふるさとの森",
+  "ミュージアム前",
+  "東側駐車場",
+  "催し広場",
+  "野球場北側",
+  "釣池",
+  "事務所ヤード",
+  "第1サッカー場",
+  "外周道路",
+  "新設ﾃﾆｽｺｰﾄ",
+  "釣池北西部",
+  "21世紀の森",
+  "旧ﾃﾆｽｺｰﾄ"
+ ],
+ "updatedAt": null,
+ "driversByOwner": {
+  "西尾ﾚﾝﾄｵｰﾙ（東急建設貸与）": [],
+  "アクティオ（東急建設貸与）": [],
+  "SRK": [],
+  "ﾀｹｴｲ・SRK": [],
+  "搬入業者": []
+ }
 }

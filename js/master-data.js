@@ -10,6 +10,7 @@ const MasterData = (() => {
     data = local ? local : base;
     migrateSecondTier();
     migrateStaff();
+    migrateDrivers();
     return data;
   }
 
@@ -26,6 +27,15 @@ const MasterData = (() => {
   function migrateStaff() {
     if (!Array.isArray(data.staff)) { data.staff = []; return; }
     data.staff = data.staff.map((s) => (typeof s === 'string' ? { name: s, email: '' } : s));
+  }
+
+  // 旧形式(driversの単純リスト)からの移行、および未登録所有者分の初期化
+  function migrateDrivers() {
+    if (!data.driversByOwner) data.driversByOwner = {};
+    delete data.drivers;
+    (data.owners || []).forEach((name) => {
+      if (!data.driversByOwner[name]) data.driversByOwner[name] = [];
+    });
   }
 
   function get() { return data; }
@@ -112,9 +122,28 @@ const MasterData = (() => {
     save(data);
   }
 
+  // 所有者ごとの運転者候補
+  function driversFor(owner) {
+    if (!data || !owner) return [];
+    return data.driversByOwner[owner] || [];
+  }
+
+  function addDriver(owner, name) {
+    if (!data.driversByOwner[owner]) data.driversByOwner[owner] = [];
+    if (!data.driversByOwner[owner].includes(name)) data.driversByOwner[owner].push(name);
+    save(data);
+  }
+
+  function removeDriver(owner, name) {
+    if (!data.driversByOwner[owner]) return;
+    data.driversByOwner[owner] = data.driversByOwner[owner].filter((v) => v !== name);
+    save(data);
+  }
+
   return {
     load, get, save, machinesFor, addToList, removeFromList, addMachine, removeMachine,
     secondTierFor, addSecondTier, removeSecondTier,
     staffNames, staffEmailFor, addStaff, removeStaff,
+    driversFor, addDriver, removeDriver,
   };
 })();
