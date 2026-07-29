@@ -233,27 +233,35 @@ const ListView = (() => {
       filtered.forEach((e) => {
         const item = UI.el('div', { class: 'list-item' });
         const parsed = parseFileName(e.fileName);
+
+        const topRow = UI.el('div', { style: 'display:flex;align-items:center;gap:8px;width:100%;cursor:pointer;' });
         const checkbox = UI.el('input', { type: 'checkbox' });
         checkbox.checked = selected.has(e.fileName);
         checkbox.addEventListener('click', (ev) => ev.stopPropagation());
         checkbox.addEventListener('change', () => {
           if (checkbox.checked) selected.add(e.fileName); else selected.delete(e.fileName);
         });
-        item.appendChild(checkbox);
-        if (e.tantosha6) item.appendChild(UI.el('div', { style: 'font-size:11px;color:var(--muted);flex:0 0 auto;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;', text: e.tantosha6 }));
-        const clickArea = UI.el('div', { style: 'display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer;' });
-        clickArea.appendChild(UI.el('div', { class: 'li-date', text: parsed.ymd || '-' }));
-        clickArea.appendChild(UI.el('div', { class: 'li-name', text: parsed.gyoshamei || e.fileName }));
-        clickArea.appendChild(UI.el('div', { class: 'li-status', text: e.dropboxPath ? 'Dropbox' : 'ローカル' }));
-        if (printedNames.has(e.fileName)) clickArea.appendChild(UI.el('div', { class: 'badge', text: '印刷済み' }));
-        clickArea.addEventListener('click', () => openEntry(e));
-        item.appendChild(clickArea);
-        const reuseBtn = UI.el('button', { class: 'btn btn-secondary', style: 'padding:6px 10px;font-size:12px;flex:0 0 auto;', text: '再利用' });
+        topRow.appendChild(checkbox);
+        topRow.appendChild(UI.el('div', { class: 'li-date', text: parsed.ymd || '-' }));
+        if (e.tantosha6) topRow.appendChild(UI.el('div', { style: 'font-size:11px;color:var(--muted);flex:0 0 auto;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;', text: e.tantosha6 }));
+        topRow.appendChild(UI.el('div', { class: 'li-status', text: e.dropboxPath ? 'Dropbox' : 'ローカル' }));
+        if (printedNames.has(e.fileName)) topRow.appendChild(UI.el('div', { class: 'badge', text: '印刷済み' }));
+        topRow.addEventListener('click', () => openEntry(e));
+        item.appendChild(topRow);
+
+        const nameRow = UI.el('div', { class: 'li-name', text: parsed.gyoshamei || e.fileName, style: 'width:100%;cursor:pointer;' });
+        nameRow.addEventListener('click', () => openEntry(e));
+        item.appendChild(nameRow);
+
+        const btnRow = UI.el('div', { style: 'display:flex;gap:8px;width:100%;justify-content:flex-end;' });
+        const reuseBtn = UI.el('button', { class: 'btn btn-secondary', style: 'padding:6px 10px;font-size:12px;', text: '再利用' });
         reuseBtn.addEventListener('click', (ev) => { ev.stopPropagation(); reuseEntry(e); });
-        item.appendChild(reuseBtn);
-        const delBtn = UI.el('button', { class: 'btn btn-danger', style: 'padding:6px 10px;font-size:12px;flex:0 0 auto;', text: '削除' });
+        btnRow.appendChild(reuseBtn);
+        const delBtn = UI.el('button', { class: 'btn btn-danger', style: 'padding:6px 10px;font-size:12px;', text: '削除' });
         delBtn.addEventListener('click', (ev) => { ev.stopPropagation(); deleteEntry(e); });
-        item.appendChild(delBtn);
+        btnRow.appendChild(delBtn);
+        item.appendChild(btnRow);
+
         container.appendChild(item);
       });
     }
