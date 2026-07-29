@@ -109,6 +109,19 @@ const UI = (() => {
     n.addEventListener('click', onNext);
     row.appendChild(n);
     container.appendChild(row);
+
+    // Enterキーで「次へ」を押せるようにする(textarea内での改行やモーダル表示中は対象外)
+    if (container._enterHandler) document.removeEventListener('keydown', container._enterHandler);
+    container._enterHandler = (ev) => {
+      if (ev.key !== 'Enter') return;
+      if (ev.target && ev.target.tagName === 'TEXTAREA') return;
+      if (n.disabled) return;
+      if (document.querySelector('.modal-overlay')) return;
+      ev.preventDefault();
+      n.click();
+    };
+    document.addEventListener('keydown', container._enterHandler);
+
     return n;
   }
 
