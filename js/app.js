@@ -8,7 +8,10 @@ const App = (() => {
 
   function navigate(view) {
     current = view;
-    document.querySelectorAll('.nav-btn').forEach((b) => b.classList.toggle('active', b.dataset.view === view));
+    document.querySelectorAll('.nav-btn').forEach((b) => {
+      const match = b.dataset.view === view || (b.dataset.view === 'wizard' && view === 'crane-wizard');
+      b.classList.toggle('active', match);
+    });
     headerSub.textContent = TITLES[view] || '';
     viewRoot.innerHTML = '';
     if (view === 'list') ListView.mount(viewRoot);
@@ -20,7 +23,16 @@ const App = (() => {
 
   function init() {
     document.querySelectorAll('.nav-btn').forEach((b) => {
-      b.addEventListener('click', () => navigate(b.dataset.view));
+      b.addEventListener('click', () => {
+        if (b.dataset.view === 'wizard') {
+          UI.choiceModal('作成する計画書を選択してください', [
+            { label: '重機作業計画書', primary: true, onClick: () => navigate('wizard') },
+            { label: 'クレーン計画書', onClick: () => navigate('crane-wizard') },
+          ]);
+          return;
+        }
+        navigate(b.dataset.view);
+      });
     });
     if (location.protocol === 'file:') {
       const banner = document.createElement('div');

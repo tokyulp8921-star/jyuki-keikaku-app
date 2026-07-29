@@ -25,20 +25,58 @@ const CraneHeaderSteps = (() => {
     { id: 'c3', title: 'クレーン業者・運転者名',
       render(container, ctx) {
         const c = card('クレーン業者・運転者名');
-        textField(c, { label: 'クレーン業者（自由入力）', value: ctx.plan.header.craneGyosha, onChange: (v) => { ctx.plan.header.craneGyosha = v; refreshSelect(); } });
+        textField(c, { label: 'クレーン業者（自由入力）', value: ctx.plan.header.craneGyosha, onChange: (v) => { ctx.plan.header.craneGyosha = v; refreshSelect(); refreshNames(); } });
         const selectWrap = el('div', {});
         c._body.appendChild(selectWrap);
         function refreshSelect() {
           selectWrap.innerHTML = '';
           selectField({ _body: selectWrap }, {
             label: 'クレーン業者（プルダウンから選択）', value: ctx.master.contractors.includes(ctx.plan.header.craneGyosha) ? ctx.plan.header.craneGyosha : '',
-            options: ctx.master.contractors, onChange: (v) => { ctx.plan.header.craneGyosha = v; refreshSelect(); },
+            options: ctx.master.contractors, onChange: (v) => { ctx.plan.header.craneGyosha = v; refreshSelect(); refreshNames(); },
           });
         }
         refreshSelect();
-        textField(c, { label: '運転者名', value: ctx.plan.header.untenshaMei, onChange: (v) => { ctx.plan.header.untenshaMei = v; } });
+
+        const namesWrap = el('div', {});
+        c._body.appendChild(namesWrap);
+        function historyKeyFor() { return `crane_untensha_${ctx.plan.header.craneGyosha || '_none_'}`; }
+        function refreshNames() {
+          namesWrap.innerHTML = '';
+          const names = ctx.plan.header.untenshaMei;
+          const f = field({ _body: namesWrap }, '運転者名（最大3名。業者ごとの入力履歴から選択も可能）');
+          const inputs = [];
+          ['1人目', '2人目', '3人目'].forEach((ph, i) => {
+            const inp = el('input', { type: 'text', placeholder: `氏名（${ph}）`, value: names[i] || '', style: 'margin-bottom:4px;' });
+            inp.addEventListener('input', () => { names[i] = inp.value; });
+            inputs.push(inp);
+            f.appendChild(inp);
+          });
+          const hist = Storage.getHistory(historyKeyFor()).slice(0, 5);
+          if (hist.length) {
+            const list = el('div', { class: 'history-list' });
+            hist.forEach((h) => {
+              const chip = el('div', { class: 'history-chip', text: h });
+              chip.addEventListener('click', () => {
+                const emptyIdx = names.findIndex((n) => !n);
+                const idx = emptyIdx === -1 ? 2 : emptyIdx;
+                names[idx] = h;
+                inputs[idx].value = h;
+              });
+              list.appendChild(chip);
+            });
+            f.appendChild(list);
+          }
+        }
+        refreshNames();
+
         container.appendChild(c);
-        nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
+        nextBar(container, {
+          onBack: ctx.goBack,
+          onNext: () => {
+            ctx.plan.header.untenshaMei.filter(Boolean).forEach((n) => Storage.pushHistory(historyKeyFor(), n));
+            ctx.goNext();
+          },
+        });
       } },
     { id: 'c4', title: '作業予定時間・使用業者・作業場所・作業内容',
       render(container, ctx) {
@@ -52,15 +90,15 @@ const CraneHeaderSteps = (() => {
         container.appendChild(c);
         nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
       } },
-    { id: 'c5', title: '吊荷重量・作業半径・ナイロンスリング',
+    { id: 'c5', title: '吊荷重量・作業半径・玉掛ワイヤーナイロンスリング',
       render(container, ctx) {
         const w = ctx.plan.work;
-        const c = card('吊荷重量・作業半径・ナイロンスリング');
+        const c = card('吊荷重量・作業半径・玉掛ワイヤーナイロンスリング');
         textField(c, { label: '吊荷重量 (t)', value: w.choKaJuryo, onChange: (v) => { w.choKaJuryo = v; } });
         textField(c, { label: '作業半径 (m)', value: w.sagyoHankei, onChange: (v) => { w.sagyoHankei = v; } });
-        textField(c, { label: 'ナイロンスリング 径 (mm)', value: w.slingKei, onChange: (v) => { w.slingKei = v; } });
-        textField(c, { label: 'ナイロンスリング 長 (m)', value: w.slingNagasa, onChange: (v) => { w.slingNagasa = v; } });
-        textField(c, { label: 'ナイロンスリング 本数', value: w.slingHon, onChange: (v) => { w.slingHon = v; } });
+        textField(c, { label: '玉掛ワイヤーナイロンスリング 径 (mm)', value: w.slingKei, onChange: (v) => { w.slingKei = v; } });
+        textField(c, { label: '玉掛ワイヤーナイロンスリング 長 (m)', value: w.slingNagasa, onChange: (v) => { w.slingNagasa = v; } });
+        textField(c, { label: '玉掛ワイヤーナイロンスリング 本数', value: w.slingHon, onChange: (v) => { w.slingHon = v; } });
         container.appendChild(c);
         nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
       } },

@@ -12,7 +12,7 @@ const CranePdfCoords = (() => {
     gyoshamei_dup: { x: 396.6, top: 742.0, width: 80, height: 12 }, // 協力会社確認欄に再掲
     kishuSeino: { x: 190, top: 160.6, width: 380, height: 12 },
     craneGyosha: { x: 190, top: 192.8, width: 158, height: 12 },
-    untenshaMei: { x: 422, top: 192.8, width: 148, height: 12 },
+    untenshaMei: { x: 422, top: 192.8, width: 148, height: 20 },
   };
 
   // 作業計画(107-118): 単一値(列①のみ使用)

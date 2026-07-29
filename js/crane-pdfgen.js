@@ -216,9 +216,10 @@ const CranePdfGen = (() => {
       }
     }
     drawTextBox(page, font, h.craneGyosha, { ...boxFrom(HEADER.craneGyosha), fontSizePt: 7.5 });
-    // 運転者名が空欄の場合は枠を黄色で塗りつぶして未記入を目立たせる
+    // 運転者名(最大3名)が空欄の場合は枠を黄色で塗りつぶして未記入を目立たせる
     const YELLOW = PDFLib.rgb(1, 1, 0);
-    drawTextBox(page, font, h.untenshaMei, { ...boxFrom(HEADER.untenshaMei), fontSizePt: 7.5, fillColor: h.untenshaMei ? null : YELLOW });
+    const untenshaText = (Array.isArray(h.untenshaMei) ? h.untenshaMei : [h.untenshaMei]).filter(Boolean).join('・');
+    drawTextBox(page, font, untenshaText, { ...boxFrom(HEADER.untenshaMei), fontSizePt: 7.5, fillColor: untenshaText ? null : YELLOW });
 
     // 作業計画(107-118、列①のみ)
     const w = plan.work;
