@@ -303,7 +303,7 @@ const CraneLiftSteps = (() => {
         renderShurui();
         container.appendChild(c);
         const c2 = card('位置および構造');
-        textField(c2, { label: '荷降ろし場所 位置および構造', value: l.ichiKozo, onChange: (v) => { l.ichiKozo = v; } });
+        textField(c2, { label: '荷降ろし場所 位置および構造', value: l.ichiKozo, placeholder: '（例）荷台、平地など', onChange: (v) => { l.ichiKozo = v; } });
         container.appendChild(c2);
         nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
       } },
