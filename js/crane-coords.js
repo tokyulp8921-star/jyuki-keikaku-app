@@ -12,7 +12,7 @@ const CranePdfCoords = (() => {
     gyoshamei_dup: { x: 396.6, top: 742.0, width: 80, height: 12 }, // 協力会社確認欄に再掲
     kishuSeino: { x: 190, top: 160.6, width: 380, height: 12 },
     craneGyosha: { x: 190, top: 192.8, width: 158, height: 12 },
-    untenshaMei: { x: 422, top: 192.8, width: 148, height: 20 },
+    untenshaMei: { x: 422, top: 192.8, width: 148, height: 12 },
   };
 
   // 作業計画(107-118): 単一値(列①のみ使用)
@@ -27,8 +27,8 @@ const CranePdfCoords = (() => {
     slingNagasa: { x: 190, top: 407.8, width: 55, height: 10 },
     slingHon: { x: 262.2, top: 407.8, width: 45, height: 10 },
     sekininsha: { x: 190, top: 424.0, width: 120, height: 12 },
-    tamakakesha: { x: 190, top: 444.1, width: 120, height: 16 },
-    aizusha: { x: 190, top: 465.3, width: 120, height: 14 },
+    tamakakesha: { x: 190, top: 444.1, width: 120, height: 12 },
+    aizusha: { x: 190, top: 465.3, width: 120, height: 12 },
   };
 
   // 安全チェック(119-126)ラベル位置(白抜きのみ。値はチェックボックスで表現するため描画不要)
@@ -79,8 +79,8 @@ const CranePdfCoords = (() => {
 
   // 元請担当者確認欄(127・128)
   const CONFIRM = {
-    tantosha127: { x: 238.1, top: 640.2, width: 100, height: 18 },
-    tantosha127_dup: { x: 509.0, top: 695.8, width: 100, height: 18 },
+    tantosha127: { x: 238.1, top: 640.2, width: 100, height: 12 },
+    tantosha127_dup: { x: 509.0, top: 695.8, width: 100, height: 12 },
     kyoryokuKakuninsha128: { x: 397.8, top: 778.4, width: 90, height: 10 },
   };
 

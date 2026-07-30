@@ -78,7 +78,7 @@ const CranePdfGen = (() => {
     return lines;
   }
 
-  function drawTextBox(page, font, text, { x, top, width, height, fontSizePt = 7, whiteOut = true, fillColor = null }) {
+  function drawTextBox(page, font, text, { x, top, width, height, fontSizePt = 7, whiteOut = true, fillColor = null, align = 'left' }) {
     const y = PAGE_H - top - height;
     if (whiteOut) page.drawRectangle({ x, y, width, height, color: fillColor || PDFLib.rgb(1, 1, 1) });
     if (text == null || text === '') return;
@@ -88,7 +88,13 @@ const CranePdfGen = (() => {
       const maxLines = Math.max(1, Math.floor(height / lineHeight) || 1);
       let cy = PAGE_H - top - fontSizePt;
       lines.slice(0, maxLines).forEach((line) => {
-        page.drawText(line, { x: x + 1, y: cy, size: fontSizePt, font, color: PDFLib.rgb(0, 0, 0) });
+        let lx = x + 1;
+        if (align === 'center') {
+          let lineWidth = 0;
+          try { lineWidth = font.widthOfTextAtSize(line, fontSizePt); } catch (e2) { lineWidth = 0; }
+          lx = x + Math.max(1, (width - lineWidth) / 2);
+        }
+        page.drawText(line, { x: lx, y: cy, size: fontSizePt, font, color: PDFLib.rgb(0, 0, 0) });
         cy -= lineHeight;
       });
     } catch (e) {
@@ -228,8 +234,8 @@ const CranePdfGen = (() => {
     drawTextBox(page, font, w.shiyoGyosha, { ...boxFrom(WORK.shiyoGyosha), fontSizePt: 7 });
     drawTextBox(page, font, w.basho, { ...boxFrom(WORK.basho), fontSizePt: 7 });
     drawTextBox(page, font, w.naiyo, { ...boxFrom(WORK.naiyo), fontSizePt: 7 });
-    drawTextBox(page, font, w.choKaJuryo, { ...boxFrom(WORK.choKaJuryo), fontSizePt: 7 });
-    drawTextBox(page, font, w.sagyoHankei, { ...boxFrom(WORK.sagyoHankei), fontSizePt: 7 });
+    drawTextBox(page, font, w.choKaJuryo, { ...boxFrom(WORK.choKaJuryo), fontSizePt: 7, align: 'center' });
+    drawTextBox(page, font, w.sagyoHankei, { ...boxFrom(WORK.sagyoHankei), fontSizePt: 7, align: 'center' });
     drawTextBox(page, font, w.slingKei, { ...boxFrom(WORK.slingKei), fontSizePt: 7 });
     drawTextBox(page, font, w.slingNagasa, { ...boxFrom(WORK.slingNagasa), fontSizePt: 7 });
     drawTextBox(page, font, w.slingHon, { ...boxFrom(WORK.slingHon), fontSizePt: 7 });
