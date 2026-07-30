@@ -113,7 +113,15 @@ const ListView = (() => {
   async function printSelected() {
     const targets = entries.filter((e) => selected.has(e.fileName));
     if (!targets.length) return window.alert('印刷したい計画書のチェックボックスにチェックを入れてください。');
-    if (!window.confirm(PRINT_INSTRUCTIONS)) return;
+    const hasCrane = targets.some((e) => docTypeOf(e) === 'crane');
+    const hasKiki = targets.some((e) => docTypeOf(e) !== 'crane');
+    let instructions = PRINT_INSTRUCTIONS;
+    if (hasCrane) {
+      instructions += hasKiki
+        ? '\n\n※ クレーン計画書は2枚1組（表面: 計画書／裏面: 点検基準表）です。クレーン計画書だけをまとめて印刷する場合は、印刷設定で「両面印刷」を選択してください（重機作業計画書と混在させると表裏がずれる場合があります）。'
+        : '\n\n※ クレーン計画書は2枚1組（表面: 計画書／裏面: 点検基準表）です。印刷設定で「両面印刷」を選択してください。';
+    }
+    if (!window.confirm(instructions)) return;
     UI.toast('印刷用PDFを準備しています…');
     try {
       const merged = await PDFLib.PDFDocument.create();
