@@ -27,8 +27,8 @@ const CranePdfCoords = (() => {
     slingNagasa: { x: 190, top: 407.8, width: 55, height: 10 },
     slingHon: { x: 262.2, top: 407.8, width: 45, height: 10 },
     sekininsha: { x: 190, top: 424.0, width: 120, height: 12 },
-    tamakakesha: { x: 190, top: 444.1, width: 120, height: 12 },
-    aizusha: { x: 190, top: 465.3, width: 120, height: 12 },
+    tamakakesha: { x: 190, top: 444.1, width: 120, height: 16 },
+    aizusha: { x: 190, top: 465.3, width: 120, height: 14 },
   };
 
   // 安全チェック(119-126)ラベル位置(白抜きのみ。値はチェックボックスで表現するため描画不要)

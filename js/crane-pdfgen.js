@@ -234,9 +234,11 @@ const CranePdfGen = (() => {
     drawTextBox(page, font, w.slingNagasa, { ...boxFrom(WORK.slingNagasa), fontSizePt: 7 });
     drawTextBox(page, font, w.slingHon, { ...boxFrom(WORK.slingHon), fontSizePt: 7 });
     // 作業責任者・玉掛者・合図者が空欄の場合は枠を黄色で塗りつぶして未記入を目立たせる
+    const tamakakeshaText = (Array.isArray(w.tamakakesha) ? w.tamakakesha : [w.tamakakesha]).filter(Boolean).join('・');
+    const aizushaText = (Array.isArray(w.aizusha) ? w.aizusha : [w.aizusha]).filter(Boolean).join('・');
     drawTextBox(page, font, w.sekininsha, { ...boxFrom(WORK.sekininsha), fontSizePt: 7, fillColor: w.sekininsha ? null : YELLOW });
-    drawTextBox(page, font, w.tamakakesha, { ...boxFrom(WORK.tamakakesha), fontSizePt: 7, fillColor: w.tamakakesha ? null : YELLOW });
-    drawTextBox(page, font, w.aizusha, { ...boxFrom(WORK.aizusha), fontSizePt: 7, fillColor: w.aizusha ? null : YELLOW });
+    drawTextBox(page, font, tamakakeshaText, { ...boxFrom(WORK.tamakakesha), fontSizePt: 7, fillColor: tamakakeshaText ? null : YELLOW });
+    drawTextBox(page, font, aizushaText, { ...boxFrom(WORK.aizusha), fontSizePt: 7, fillColor: aizushaText ? null : YELLOW });
 
     // 安全チェック(119-126): ラベル位置は白塗りのみ、値はチェックボックスへのマークで表現
     const s = plan.safety;

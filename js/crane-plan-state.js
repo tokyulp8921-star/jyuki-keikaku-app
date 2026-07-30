@@ -15,7 +15,7 @@ const CranePlanState = (() => {
       yoteiJikanStart: '', yoteiJikanEnd: '', shiyoGyosha: '', basho: '', naiyo: '',
       choKaJuryo: '', sagyoHankei: '',
       slingKei: '', slingNagasa: '', slingHon: '',
-      sekininsha: '', tamakakesha: '', aizusha: '',
+      sekininsha: '', tamakakesha: ['', '', ''], aizusha: ['', '', ''], // 玉掛者・合図者(最大3名)
     };
   }
 

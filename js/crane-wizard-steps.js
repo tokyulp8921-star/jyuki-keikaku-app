@@ -2,6 +2,35 @@
 const CraneHeaderSteps = (() => {
   const { card, selectField, textField, textAreaWithHistory, chipGroup, nextBar, toast, field, el } = UI;
 
+  // 業者ごとの入力履歴(最大5件)付きテキスト入力
+  function textFieldWithHistory(container, { label, value, historyKey, onChange }) {
+    const f = field(container, label);
+    const inp = el('input', { type: 'text', value: value || '' });
+    inp.addEventListener('input', () => onChange(inp.value));
+    f.appendChild(inp);
+    const hist = Storage.getHistory(historyKey).slice(0, 5);
+    if (hist.length) {
+      const list = el('div', { class: 'history-list' });
+      hist.forEach((h) => {
+        const chip = el('div', { class: 'history-chip', text: h });
+        chip.addEventListener('click', () => { inp.value = h; onChange(h); });
+        list.appendChild(chip);
+      });
+      f.appendChild(list);
+    }
+    return inp;
+  }
+
+  // 最大3名までの氏名入力(運転者名・玉掛者・合図者など)
+  function nameTrio(container, names, label) {
+    const f = field(container, label);
+    ['1人目', '2人目', '3人目'].forEach((ph, i) => {
+      const inp = el('input', { type: 'text', placeholder: `氏名（${ph}）`, value: names[i] || '', style: 'margin-bottom:6px;' });
+      inp.addEventListener('input', () => { names[i] = inp.value; });
+      f.appendChild(inp);
+    });
+  }
+
   const steps = [
     { id: 'c1', title: '業者名',
       render(container, ctx) {
@@ -106,11 +135,15 @@ const CraneHeaderSteps = (() => {
       render(container, ctx) {
         const w = ctx.plan.work;
         const c = card('作業責任者・玉掛者・合図者');
-        textField(c, { label: '作業責任者', value: w.sekininsha, onChange: (v) => { w.sekininsha = v; } });
-        textField(c, { label: '玉掛者', value: w.tamakakesha, onChange: (v) => { w.tamakakesha = v; } });
-        textField(c, { label: '合図者', value: w.aizusha, onChange: (v) => { w.aizusha = v; } });
+        const sekininshaKey = `crane_sekininsha_${w.shiyoGyosha || '_none_'}`;
+        textFieldWithHistory(c, { label: '作業責任者（業者ごとの入力履歴から選択も可能）', value: w.sekininsha, historyKey: sekininshaKey, onChange: (v) => { w.sekininsha = v; } });
+        nameTrio(c, w.tamakakesha, '玉掛者（最大3名）');
+        nameTrio(c, w.aizusha, '合図者（最大3名）');
         container.appendChild(c);
-        nextBar(container, { onBack: ctx.goBack, onNext: () => ctx.goNext() });
+        nextBar(container, {
+          onBack: ctx.goBack,
+          onNext: () => { Storage.pushHistory(sekininshaKey, w.sekininsha); ctx.goNext(); },
+        });
       } },
     { id: 'c7', title: '合図の方法・地形・地盤強度',
       render(container, ctx) {
