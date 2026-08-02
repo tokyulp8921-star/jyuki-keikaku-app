@@ -180,7 +180,25 @@ const CraneHeaderSteps = (() => {
         chipGroup(c, { label: 'クレーン周囲（複数選択可）', value: s.creneShui, multi: true, options: ['バリケード', 'ロープ', 'カラーコーン'], onChange: (v) => { s.creneShui = v; } });
         container.appendChild(c);
         const c2 = card('立入禁止措置(吊荷下部)');
-        chipGroup(c2, { label: '吊荷下部（複数選択可）', value: s.tsuriniKabu, multi: true, options: ['誘導員', '声', '笛', 'ブザー', 'カラーコーン', 'ロープ'], onChange: (v) => { s.tsuriniKabu = v; } });
+        chipGroup(c2, {
+          label: '吊荷下部（複数選択可）', value: s.tsuriniKabu, multi: true, options: ['誘導員', 'ブザー', 'カラーコーン', 'ロープ'],
+          onChange: (v) => {
+            if (!v.includes('誘導員')) v = v.filter((x) => x !== '声' && x !== '笛');
+            s.tsuriniKabu = v;
+            renderYudoinSub();
+          },
+        });
+        const yudoinWrap = el('div', {});
+        c2._body.appendChild(yudoinWrap);
+        function renderYudoinSub() {
+          yudoinWrap.innerHTML = '';
+          if (!s.tsuriniKabu.includes('誘導員')) return;
+          chipGroup({ _body: yudoinWrap }, {
+            label: '誘導員の合図方法（複数選択可）', value: s.tsuriniKabu.filter((x) => x === '声' || x === '笛'), multi: true, options: ['声', '笛'],
+            onChange: (v) => { s.tsuriniKabu = [...s.tsuriniKabu.filter((x) => x !== '声' && x !== '笛'), ...v]; },
+          });
+        }
+        renderYudoinSub();
         container.appendChild(c2);
         const c3 = card('架空線近接');
         chipGroup(c3, {

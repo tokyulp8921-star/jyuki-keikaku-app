@@ -23,9 +23,9 @@ const CranePdfCoords = (() => {
     naiyo: { x: 190, top: 339.8, width: 120, height: 12 },
     choKaJuryo: { x: 190, top: 363.1, width: 100, height: 12 },
     sagyoHankei: { x: 190, top: 378.6, width: 100, height: 12 },
-    slingKei: { x: 190, top: 394.0, width: 70, height: 10 },
-    slingNagasa: { x: 190, top: 407.8, width: 55, height: 10 },
-    slingHon: { x: 262.2, top: 407.8, width: 45, height: 10 },
+    slingKei: { x: 210, top: 394.0, width: 75, height: 10 }, // 「径」ラベル(〜205.8)と「mm」単位(288.3〜)の間に収める
+    slingNagasa: { x: 210, top: 407.8, width: 32, height: 10 }, // 「長」ラベル(〜205.8)と「m，」単位(243.1〜)の間に収める
+    slingHon: { x: 262.2, top: 407.8, width: 29, height: 10 }, // 「本」単位(292.6〜)の手前に収める
     sekininsha: { x: 190, top: 424.0, width: 120, height: 12 },
     tamakakesha: { x: 190, top: 444.1, width: 120, height: 12 },
     aizusha: { x: 190, top: 465.3, width: 120, height: 12 },
